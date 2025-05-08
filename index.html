@@ -107,22 +107,39 @@
 <body>
   <div id="app"></div>
   <script>
-    // Async script loader with timeout
-    function loadScript(src) {
+    // Async script loader with retry mechanism
+    function loadScript(src, retries = 2, delay = 2000) {
       return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = src;
         script.async = true;
-        script.onload = () => resolve(true);
-        script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-        document.head.appendChild(script);
 
-        // Timeout after 10 seconds
-        setTimeout(() => reject(new Error(`Timeout loading script: ${src}`)), 10000);
+        const attemptLoad = (attempt) => {
+          script.onload = () => {
+            console.log(`Successfully loaded script: ${src}`);
+            resolve(true);
+          };
+          script.onerror = () => {
+            console.error(`Failed to load script: ${src} (Attempt ${attempt}/${retries})`);
+            if (attempt < retries) {
+              setTimeout(() => {
+                console.log(`Retrying script load: ${src} (Attempt ${attempt + 1}/${retries})`);
+                script.src = ''; // Reset src to force reload
+                script.src = src;
+                attemptLoad(attempt + 1);
+              }, delay);
+            } else {
+              reject(new Error(`Failed to load script after ${retries} retries: ${src}`));
+            }
+          };
+          document.head.appendChild(script);
+        };
+
+        attemptLoad(1);
       });
     }
 
-    // Load Firebase scripts
+    // Load Firebase scripts with validation
     async function loadFirebaseScripts() {
       const scripts = [
         "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js",
@@ -132,21 +149,45 @@
         try {
           await loadScript(src);
         } catch (error) {
-          document.getElementById('app').innerHTML = `
-            <div class="error">
-              <h2>Error: Failed to load Firebase scripts.</h2>
-              <p>${error.message}</p>
-              <p>Check your internet, disable ad-blockers, or try a different browser.</p>
-              <button onclick="window.location.reload()" class="btn-blue">Reload</button>
-            </div>
-          `;
+          console.error(error.message);
           throw error;
         }
       }
+
+      // Verify that firebase is defined
+      if (typeof firebase === 'undefined') {
+        throw new Error("Firebase library failed to initialize: firebase is not defined");
+      }
     }
 
-    // Initialize Firebase and app
-    loadFirebaseScripts().then(() => {
+    // Initialize app
+    (async () => {
+      const appDiv = document.getElementById('app');
+
+      // Show loading message while scripts are being loaded
+      appDiv.innerHTML = `
+        <div class="container">
+          <h2>Loading...</h2>
+          <p>Please wait while the app initializes.</p>
+        </div>
+      `;
+
+      try {
+        await loadFirebaseScripts();
+      } catch (error) {
+        console.error("Script loading failed:", error);
+        appDiv.innerHTML = `
+          <div class="error">
+            <h2>Error: Failed to load Firebase scripts.</h2>
+            <p>${error.message}</p>
+            <p>Check your internet connection, disable ad-blockers, or try a different browser.</p>
+            <p>Visit <a href="https://console.firebase.google.com/u/0/project/crispydelight-7ec1d/database" target="_blank">Firebase Console</a> to ensure your database is set up correctly.</p>
+            <button onclick="window.location.reload()" class="btn-blue">Reload</button>
+          </div>
+        `;
+        return;
+      }
+
       // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyCM3pJf9gVq3mlX0z2heC8rEUNyZ4Wzu2g",
@@ -164,12 +205,11 @@
         const app = firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         // Test database connectivity
-        db.ref('test').set({ timestamp: Date.now() }).catch(error => {
-          throw new Error("Database connectivity test failed: " + error.message);
-        });
+        await db.ref('test').set({ timestamp: Date.now() });
+        console.log("Firebase initialized and connected successfully");
       } catch (error) {
         console.error("Firebase initialization failed:", error);
-        document.getElementById('app').innerHTML = `
+        appDiv.innerHTML = `
           <div class="error">
             <h2>Error: Failed to connect to Firebase database.</h2>
             <p>Ensure Realtime Database is enabled and rules allow read/write. Error: ${error.message}</p>
@@ -625,9 +665,7 @@
 
       // Initialize app
       loadData();
-    }).catch(error => {
-      console.error("Script loading failed:", error);
-    });
+    })();
   </script>
 </body>
 </html>

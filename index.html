@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Restaurant Management</title>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
   <style>
     body {
       margin: 0;
@@ -50,8 +48,7 @@
     .btn-red { background-color: #dc3545; color: white; }
     .btn-yellow { background-color: #ffc107; color: black; }
     .btn-gray { background-color: #6c757d; color: white; }
-    .btn-purple { background-color: #6f42c1; color: white; }
-    .btn-blue:hover, .btn-green:hover, .btn-red:hover, .btn-yellow:hover, .btn-gray:hover, .btn-purple:hover {
+    .btn-blue:hover, .btn-green:hover, .btn-red:hover, .btn-yellow:hover, .btn-gray:hover {
       opacity: 0.9;
     }
     .grid {
@@ -107,112 +104,39 @@
   </style>
 </head>
 <body>
-  <div id="app"></div>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCM3pJf9gVq3mlX0z2heC8rEUNyZ4Wzu2g",
-      authDomain: "crispydelight-7ec1d.firebaseapp.com",
-      databaseURL: "https://crispydelight-7ec1d-default-rtdb.firebaseio.com",
-      projectId: "crispydelight-7ec1d",
-      storageBucket: "crispydelight-7ec1d.appspot.com",
-      messagingSenderId: "1032037154266",
-      appId: "1:1032037154266:web:86fddca8d4df94bff214e3",
-      measurementId: "G-3RNNKVNF6P"
-    };
+  <div id="root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js" integrity="sha256-JDEy1knU0qG7Q/4Q9SxfO8rM3wfL66L3zokzSwW8NJI=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js" integrity="sha256-0W3lDppArC8jBWKBg2l5EDW3vKGO2v7zTRG6NGE6vKY=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.25.7/babel.min.js" integrity="sha256-WvD3j3rI47/2mXgR6nJ8hQvV1iL+dMhZsx0b0n3gX/g=" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
+  <script type="text/babel">
+    try {
+      // Check if required globals are available
+      if (!window.React || !window.ReactDOM || !window.Babel || !window.firebase) {
+        throw new Error("Missing required scripts: React, ReactDOM, Babel, or Firebase");
+      }
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    document.getElementById("app").innerHTML = `
-      <div class="container">
-        <h2>Firebase Connected Successfully!</h2>
-        <p>You can now safely use Firebase Realtime Database.</p>
-      </div>
-    `;
-  </script>
-  <script>
-    // Async script loader with retry mechanism
-    function loadScript(src, retries = 2, delay = 2000) {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.async = true;
-
-        const attemptLoad = (attempt) => {
-          script.onload = () => {
-            console.log(`Successfully loaded script: ${src}`);
-            resolve(true);
-          };
-          script.onerror = () => {
-            console.error(`Failed to load script: ${src} (Attempt ${attempt}/${retries})`);
-            if (attempt < retries) {
-              setTimeout(() => {
-                console.log(`Retrying script load: ${src} (Attempt ${attempt + 1}/${retries})`);
-                script.src = ''; // Reset src to force reload
-                script.src = src;
-                attemptLoad(attempt + 1);
-              }, delay);
-            } else {
-              reject(new Error(`Failed to load script after ${retries} retries: ${src}`));
-            }
-          };
-          document.head.appendChild(script);
-        };
-
-        attemptLoad(1);
-      });
-    }
-
-    // Load Firebase scripts with validation
-    async function loadFirebaseScripts() {
-      const scripts = [
-        "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js",
-        "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"
-      ];
-      for (const src of scripts) {
-        try {
-          await loadScript(src);
-        } catch (error) {
-          console.error(error.message);
-          throw error;
+      // Helper function to display errors safely
+      const displayError = (title, message, details = '') => {
+        const root = document.getElementById('root') || document.body;
+        if (root) {
+          root.innerHTML = `
+            <div class="error">
+              <h2>${title}</h2>
+              <p>${message}</p>
+              ${details ? `<p>Error: ${details}</p>` : ''}
+              <button onclick="window.location.reload()" class="btn-blue">Reload</button>
+            </div>
+          `;
+        } else {
+          console.error("Cannot display error: No root or body element available");
         }
-      }
+      };
 
-      // Verify that firebase is defined
-      if (typeof firebase === 'undefined') {
-        throw new Error("Firebase library failed to initialize: firebase is not defined");
-      }
-    }
+      const { useState, useEffect } = React;
 
-    // Initialize app
-    (async () => {
-      const appDiv = document.getElementById('app');
-
-      // Show loading message while scripts are being loaded
-      appDiv.innerHTML = `
-        <div class="container">
-          <h2>Loading...</h2>
-          <p>Please wait while the app initializes.</p>
-        </div>
-      `;
-
-      try {
-        await loadFirebaseScripts();
-      } catch (error) {
-        console.error("Script loading failed:", error);
-        appDiv.innerHTML = `
-          <div class="error">
-            <h2>Error: Failed to load Firebase scripts.</h2>
-            <p>${error.message}</p>
-            <p>Check your internet connection, disable ad-blockers, or try a different browser.</p>
-            <p>Visit <a href="https://console.firebase.google.com/u/0/project/crispydelight-7ec1d/database" target="_blank">Firebase Console</a> to ensure your database is set up correctly.</p>
-            <button onclick="window.location.reload()" class="btn-blue">Reload</button>
-          </div>
-        `;
-        return;
-      }
-
-      // Firebase configuration
+      // Firebase configuration for crispydelight-7ec1d
       const firebaseConfig = {
         apiKey: "AIzaSyCM3pJf9gVq3mlX0z2heC8rEUNyZ4Wzu2g",
         authDomain: "crispydelight-7ec1d.firebaseapp.com",
@@ -224,472 +148,463 @@
         measurementId: "G-3RNNKVNF6P"
       };
 
-      let db;
+      // Initialize Firebase with error handling
+      let app, db;
       try {
-        const app = firebase.initializeApp(firebaseConfig);
+        app = firebase.initializeApp(firebaseConfig);
         db = firebase.database();
-        // Test database connectivity
-        await db.ref('test').set({ timestamp: Date.now() });
-        console.log("Firebase initialized and connected successfully");
       } catch (error) {
-        console.error("Firebase initialization failed:", error);
-        appDiv.innerHTML = `
-          <div class="error">
-            <h2>Error: Failed to connect to Firebase database.</h2>
-            <p>Ensure Realtime Database is enabled and rules allow read/write. Error: ${error.message}</p>
-            <p>Visit <a href="https://console.firebase.google.com/u/0/project/crispydelight-7ec1d/database" target="_blank">Firebase Console</a>.</p>
-            <button onclick="window.location.reload()" class="btn-blue">Reload</button>
-          </div>
-        `;
-        return;
+        console.error("Firebase initialization failed:", error.message);
+        displayError(
+          "Error: Failed to connect to database",
+          "Please check Firebase configuration or your internet connection.",
+          error.message
+        );
+        throw error;
       }
 
-      // Default data (used if Firebase is empty)
-      const defaultData = {
-        tableCount: 5,
-        menu: {
-          Burgers: [
-            { id: 1, name: "Classic Burger", price: 10 },
-            { id: 2, name: "Cheese Burger", price: 12 }
-          ],
-          Mojitos: [
-            { id: 3, name: "Classic Mojito", price: 5 },
-            { id: 4, name: "Strawberry Mojito", price: 6 }
-          ],
-          Pizzas: [
-            { id: 5, name: "Margherita Pizza", price: 15 },
-            { id: 6, name: "Pepperoni Pizza", price: 16 }
-          ],
-          FriedChicken: [
-            { id: 7, name: "Spicy Fried Chicken", price: 12 },
-            { id: 8, name: "BBQ Fried Chicken", price: 13 }
-          ]
-        }
+      // Default menu with categories
+      const defaultMenu = {
+        Burgers: [
+          { id: 1, name: "Classic Burger", price: 10 },
+          { id: 2, name: "Cheese Burger", price: 12 }
+        ],
+        Mojitos: [
+          { id: 3, name: "Classic Mojito", price: 5 },
+          { id: 4, name: "Strawberry Mojito", price: 6 }
+        ],
+        Pizzas: [
+          { id: 5, name: "Margherita Pizza", price: 15 },
+          { id: 6, name: "Pepperoni Pizza", price: 16 }
+        ],
+        FriedChicken: [
+          { id: 7, name: "Spicy Fried Chicken", price: 12 },
+          { id: 8, name: "BBQ Fried Chicken", price: 13 }
+        ]
       };
 
-      // Local state
-      let appData = {
-        tableCount: defaultData.tableCount,
-        menu: defaultData.menu,
-        orders: {},
-        notifications: {}
-      };
-      let currentSection = 'home';
-      let selectedTable = null;
-      let currentOrder = [];
-      let isInitialLoadComplete = false;
+      // Error Boundary Component
+      class ErrorBoundary extends React.Component {
+        state = { hasError: false, error: null };
 
-      // Load initial data from Firebase
-      function loadData() {
-        console.log("Loading data from Firebase...");
-
-        // Load table count
-        db.ref('settings/tableCount').once('value', snapshot => {
-          appData.tableCount = snapshot.val() || defaultData.tableCount;
-          console.log("Table count loaded:", appData.tableCount);
-          checkInitialLoad();
-        }).catch(error => {
-          console.error("Error loading table count:", error);
-          appData.tableCount = defaultData.tableCount;
-          checkInitialLoad();
-        });
-
-        // Load menu
-        db.ref('settings/menu').once('value', snapshot => {
-          appData.menu = snapshot.val() || defaultData.menu;
-          console.log("Menu loaded:", appData.menu);
-          checkInitialLoad();
-        }).catch(error => {
-          console.error("Error loading menu:", error);
-          appData.menu = defaultData.menu;
-          checkInitialLoad();
-        });
-
-        // Listen for orders
-        db.ref('orders').on('value', snapshot => {
-          appData.orders = snapshot.val() || {};
-          console.log("Orders updated:", appData.orders);
-          if (isInitialLoadComplete) {
-            render();
-          } else {
-            checkInitialLoad();
-          }
-        }, error => {
-          console.error("Error listening for orders:", error);
-          checkInitialLoad();
-        });
-
-        // Listen for notifications
-        db.ref('notifications').on('value', snapshot => {
-          appData.notifications = snapshot.val() || {};
-          console.log("Notifications updated:", appData.notifications);
-          if (isInitialLoadComplete) {
-            render();
-          } else {
-            checkInitialLoad();
-          }
-        }, error => {
-          console.error("Error listening for notifications:", error);
-          checkInitialLoad();
-        });
-      }
-
-      // Check if initial data load is complete
-      function checkInitialLoad() {
-        if (appData.tableCount && appData.menu && appData.orders !== undefined && appData.notifications !== undefined) {
-          isInitialLoadComplete = true;
-          console.log("Initial data load complete, rendering...");
-          render();
-        }
-      }
-
-      // Navigation
-      function setSection(section) {
-        currentSection = section;
-        selectedTable = null;
-        currentOrder = [];
-        render();
-      }
-
-      // Rendering
-      function render() {
-        if (!isInitialLoadComplete) {
-          console.log("Render skipped: Initial load not complete");
-          return;
+        static getDerivedStateFromError(error) {
+          return { hasError: true, error };
         }
 
-        const appDiv = document.getElementById('app');
-        appDiv.innerHTML = '';
-
-        if (currentSection === 'home') {
-          renderHome(appDiv);
-        } else if (currentSection === 'order') {
-          renderOrder(appDiv);
-        } else if (currentSection === 'kitchen') {
-          renderKitchen(appDiv);
-        } else if (currentSection === 'admin') {
-          renderAdmin(appDiv);
+        render() {
+          if (this.state.hasError) {
+            return (
+              <div className="error">
+                <h2>Something went wrong</h2>
+                <p>{this.state.error?.message || "Unknown error"}</p>
+                <button onClick={() => window.location.reload()} className="btn-blue">Reload</button>
+              </div>
+            );
+          }
+          return this.props.children;
         }
       }
 
       // Home Screen
-      function renderHome(appDiv) {
-        appDiv.innerHTML = `
-          <div class="container">
-            <h1>Restaurant Management</h1>
-            <button class="btn-blue" onclick="setSection('order')">Order Section</button>
-            <button class="btn-green" onclick="setSection('kitchen')">Kitchen Section</button>
-            <button class="btn-red" onclick="setSection('admin')">Admin Section</button>
-          </div>
-        `;
-      }
+      const Home = ({ setSection }) => (
+        <div className="container">
+          <h1>Restaurant Management</h1>
+          <button onClick={() => setSection('order')} className="btn-blue">Order Section</button>
+          <button onClick={() => setSection('kitchen')} className="btn-green">Kitchen Section</button>
+          <button onClick={() => setSection('admin')} className="btn-red">Admin Section</button>
+        </div>
+      );
 
       // Order Section
-      function renderOrder(appDiv) {
-        if (selectedTable) {
-          let html = `
-            <div class="section overflow-auto">
-              <h2>${selectedTable} - Menu</h2>
-          `;
-          Object.keys(appData.menu).forEach(category => {
-            html += `
-              <div style="margin-bottom: 15px;">
-                <h3>${category}</h3>
-                <div class="grid">
-            `;
-            appData.menu[category].forEach(item => {
-              html += `
-                <button class="btn-blue" onclick="addToOrder(${item.id})">
-                  ${item.name} - $${item.price}
-                </button>
-              `;
-            });
-            html += `</div></div>`;
-          });
-          html += `
-              <h3>Current Order</h3>
-              <ul>
-          `;
-          currentOrder.forEach(item => {
-            html += `<li>${item.name} - $${item.price}</li>`;
-          });
-          html += `
-              </ul>
-              <button class="btn-green" onclick="submitOrder()">Confirm Order</button>
-              <button class="btn-gray" onclick="selectedTable = null; render()">Back</button>
-            </div>
-          `;
-          appDiv.innerHTML = html;
-        } else {
-          const tables = Array.from({ length: appData.tableCount }, (_, i) => `Table ${i + 1}`);
-          let html = `
-            <div class="section">
-              <h2>Order Section</h2>
-              <div class="grid">
-          `;
-          tables.forEach(table => {
-            html += `<button class="btn-blue" onclick="selectedTable = '${table}'; render()">${table}</button>`;
-          });
-          html += `
-              <button class="btn-purple" onclick="selectedTable = 'Takeaway'; render()">Takeaway</button>
-              </div>
-              <h3>Notifications</h3>
-              <ul>
-          `;
-          Object.entries(appData.notifications).forEach(([id, note]) => {
-            if (note) {
-              html += `
-                <li class="notification flex-row">
-                  <span style="margin-right: 10px;">${note.message}</span>
-                  <button class="btn-green" onclick="markAsPaid('${id}')">Mark as Paid</button>
-                </li>
-              `;
+      const OrderSection = ({ setSection }) => {
+        const [tables, setTables] = useState([]);
+        const [selectedTable, setSelectedTable] = useState(null);
+        const [order, setOrder] = useState([]);
+        const [menu, setMenu] = useState(defaultMenu);
+        const [notifications, setNotifications] = useState([]);
+
+        useEffect(() => {
+          if (!db) return;
+
+          // Load table count from Firebase
+          db.ref('settings/tableCount').once('value').then(snapshot => {
+            const count = snapshot.val() || 5;
+            setTables(Array.from({ length: count }, (_, i) => `Table ${i + 1}`));
+          }).catch(error => console.error("Error loading table count:", error.message));
+
+          // Load menu from Firebase
+          db.ref('settings/menu').once('value').then(snapshot => {
+            const savedMenu = snapshot.val();
+            if (savedMenu) setMenu(savedMenu);
+          }).catch(error => console.error("Error loading menu:", error.message));
+
+          // Listen for kitchen notifications
+          db.ref('orders').on('child_changed', snapshot => {
+            const order = snapshot.val();
+            if (order && order.status === 'ready') {
+              setNotifications(prev => [...prev, { id: snapshot.key, table: order.table }]);
             }
-          });
-          html += `
-              </ul>
-              <button class="btn-gray" onclick="setSection('home')">Back to Home</button>
-            </div>
-          `;
-          appDiv.innerHTML = html;
-        }
-      }
+          }, error => console.error("Error listening for orders:", error.message));
+        }, []);
 
-      window.addToOrder = function(itemId) {
-        Object.values(appData.menu).flat().forEach(item => {
-          if (item.id === itemId) {
-            currentOrder.push({ ...item });
-          }
-        });
-        render();
-      };
-
-      window.submitOrder = function() {
-        if (currentOrder.length === 0) return;
-        const order = {
-          table: selectedTable,
-          items: currentOrder,
-          status: 'pending',
-          timestamp: Date.now()
+        const addToOrder = (item) => {
+          setOrder(prev => [...prev, item]);
         };
-        const orderId = db.ref('orders').push().key;
-        console.log("Submitting order:", orderId, order);
-        db.ref(`orders/${orderId}`).set(order).then(() => {
-          console.log("Order submitted successfully:", orderId);
-          currentOrder = [];
-          selectedTable = null;
-          render();
-        }).catch(error => {
-          console.error("Error submitting order:", error);
-        });
-      };
 
-      window.markAsPaid = function(noteId) {
-        const note = appData.notifications[noteId];
-        if (note) {
-          console.log("Marking as paid:", noteId, note.orderId);
-          db.ref(`orders/${note.orderId}`).update({
+        const submitOrder = () => {
+          if (order.length === 0 || !db) return;
+          const orderData = {
+            table: selectedTable,
+            items: order,
+            status: 'pending',
+            timestamp: Date.now()
+          };
+          db.ref('orders').push(orderData).then(() => {
+            setOrder([]);
+            setSelectedTable(null);
+          }).catch(error => console.error("Error submitting order:", error.message));
+        };
+
+        const markAsPaid = (orderId) => {
+          if (!db) return;
+          db.ref(`orders/${orderId}`).update({
             status: 'paid',
             paidTimestamp: Date.now()
           }).then(() => {
-            console.log("Order marked as paid:", note.orderId);
-            db.ref(`notifications/${noteId}`).remove().then(() => {
-              console.log("Notification removed:", noteId);
-            }).catch(error => console.error("Error removing notification:", error));
-          }).catch(error => console.error("Error marking as paid:", error));
+            setNotifications(prev => prev.filter(note => note.id !== orderId));
+          }).catch(error => console.error("Error marking as paid:", error.message));
+        };
+
+        if (selectedTable) {
+          return (
+            <div className="section overflow-auto">
+              <h2>{selectedTable} - Menu</h2>
+              {Object.keys(menu).map(category => (
+                <div key={category} style={{ marginBottom: '15px' }}>
+                  <h3>{category}</h3>
+                  <div className="grid">
+                    {menu[category].map(item => (
+                      <button
+                        key={item.id}
+                        onClick={() => addToOrder(item)}
+                        className="btn-blue"
+                      >
+                        {item.name} - ${item.price}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <h3>Current Order</h3>
+              <ul>
+                {order.map((item, index) => (
+                  <li key={index}>{item.name} - ${item.price}</li>
+                ))}
+              </ul>
+              <button onClick={submitOrder} className="btn-green">Confirm Order</button>
+              <button onClick={() => setSelectedTable(null)} className="btn-gray">Back</button>
+            </div>
+          );
         }
+
+        return (
+          <div className="section">
+            <h2>Order Section</h2>
+            <div className="grid">
+              {tables.map(table => (
+                <button key={table} onClick={() => setSelectedTable(table)} className="btn-blue">
+                  {table}
+                </button>
+              ))}
+              <button onClick={() => setSelectedTable('Takeaway')} className="btn-blue">
+                Takeaway
+              </button>
+            </div>
+            <h3>Notifications</h3>
+            <ul>
+              {notifications.map((note, index) => (
+                <li key={index} className="notification">
+                  Order for {note.table} is ready!
+                  <button onClick={() => markAsPaid(note.id)} className="btn-green">Mark as Paid</button>
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => setSection('home')} className="btn-gray">Back to Home</button>
+          </div>
+        );
       };
 
       // Kitchen Section
-      function renderKitchen(appDiv) {
-        let html = `
-          <div class="section">
-            <h2>Kitchen Section</h2>
-        `;
-        const pendingOrders = Object.entries(appData.orders).filter(([_, order]) => order && order.status === 'pending');
-        if (pendingOrders.length === 0) {
-          html += `<p>No pending orders.</p>`;
-        } else {
-          pendingOrders.forEach(([id, order]) => {
-            html += `
-              <div class="card">
-                <h3>${order.table}</h3>
-                <ul>
-            `;
-            order.items.forEach(item => {
-              html += `<li>${item.name} - $${item.price}</li>`;
-            });
-            html += `
-                </ul>
-                <button class="btn-green" onclick="markAsReady('${id}')">Mark as Ready</button>
-              </div>
-            `;
-          });
-        }
-        html += `
-            <button class="btn-gray" onclick="setSection('home')">Back to Home</button>
-          </div>
-        `;
-        appDiv.innerHTML = html;
-      }
+      const KitchenSection = ({ setSection }) => {
+        const [orders, setOrders] = useState([]);
 
-      window.markAsReady = function(orderId) {
-        console.log("Marking as ready:", orderId);
-        db.ref(`orders/${orderId}`).update({ status: 'ready' }).then(() => {
-          console.log("Order marked as ready:", orderId);
-          const order = appData.orders[orderId];
-          const noteId = db.ref('notifications').push().key;
-          db.ref(`notifications/${noteId}`).set({
-            orderId: orderId,
-            message: `Order for ${order.table} is ready!`
-          }).then(() => {
-            console.log("Notification added:", noteId);
-          }).catch(error => console.error("Error adding notification:", error));
-        }).catch(error => console.error("Error marking as ready:", error));
+        useEffect(() => {
+          if (!db) return;
+
+          db.ref('orders').on('value', snapshot => {
+            const orderData = snapshot.val();
+            if (orderData) {
+              const orderList = Object.entries(orderData)
+                .filter(([_, order]) => order.status === 'pending')
+                .map(([id, order]) => ({ id, ...order }));
+              setOrders(orderList);
+            } else {
+              setOrders([]);
+            }
+          }, error => console.error("Error loading orders:", error.message));
+        }, []);
+
+        const markAsReady = (orderId) => {
+          if (!db) return;
+          db.ref(`orders/${orderId}`).update({ status: 'ready' }).catch(error => console.error("Error marking as ready:", error.message));
+        };
+
+        return (
+          <div className="section">
+            <h2>Kitchen Section</h2>
+            {orders.length === 0 ? (
+              <p>No pending orders.</p>
+            ) : (
+              orders.map(order => (
+                <div key={order.id} className="card">
+                  <h3>{order.table}</h3>
+                  <ul>
+                    {order.items.map((item, index) => (
+                      <li key={index}>{item.name} - ${item.price}</li>
+                    ))}
+                  </ul>
+                  <button onClick={() => markAsReady(order.id)} className="btn-green">Mark as Ready</button>
+                </div>
+              ))
+            )}
+            <button onClick={() => setSection('home')} className="btn-gray">Back to Home</button>
+          </div>
+        );
       };
 
       // Admin Section
-      function renderAdmin(appDiv) {
-        let html = `
-          <div class="section overflow-auto">
+      const AdminSection = ({ setSection }) => {
+        const [tableCount, setTableCount] = useState(5);
+        const [menu, setMenu] = useState(defaultMenu);
+        const [newCategory, setNewCategory] = useState('');
+        const [newItem, setNewItem] = useState({ category: '', name: '', price: '' });
+        const [editItem, setEditItem] = useState(null);
+        const [orders, setOrders] = useState([]);
+
+        useEffect(() => {
+          if (!db) return;
+
+          // Load settings
+          db.ref('settings').once('value').then(snapshot => {
+            const settings = snapshot.val() || {};
+            setTableCount(settings.tableCount || 5);
+            setMenu(settings.menu || defaultMenu);
+          }).catch(error => console.error("Error loading settings:", error.message));
+
+          // Load paid orders
+          db.ref('orders').on('value', snapshot => {
+            const orderData = snapshot.val();
+            if (orderData) {
+              const paidOrders = Object.entries(orderData)
+                .filter(([_, order]) => order.status === 'paid')
+                .map(([id, order]) => ({ id, ...order }));
+              setOrders(paidOrders);
+            } else {
+              setOrders([]);
+            }
+          }, error => console.error("Error loading paid orders:", error.message));
+        }, []);
+
+        const updateTableCount = () => {
+          if (!db) return;
+          db.ref('settings').update({ tableCount: parseInt(tableCount) }).catch(error => console.error("Error updating table count:", error.message));
+        };
+
+        const addCategory = () => {
+          if (!newCategory || !db) return;
+          const updatedMenu = { ...menu, [newCategory]: [] };
+          setMenu(updatedMenu);
+          db.ref('settings').update({ menu: updatedMenu }).then(() => {
+            setNewCategory('');
+          }).catch(error => console.error("Error adding category:", error.message));
+        };
+
+        const addMenuItem = () => {
+          if (!newItem.category || !newItem.name || !newItem.price || !db) return;
+          const updatedMenu = { ...menu };
+          const categoryItems = updatedMenu[newItem.category] || [];
+          updatedMenu[newItem.category] = [
+            ...categoryItems,
+            { id: Date.now(), name: newItem.name, price: parseFloat(newItem.price) }
+          ];
+          setMenu(updatedMenu);
+          db.ref('settings').update({ menu: updatedMenu }).then(() => {
+            setNewItem({ category: '', name: '', price: '' });
+          }).catch(error => console.error("Error adding menu item:", error.message));
+        };
+
+        const updateMenuItem = () => {
+          if (!editItem || !db) return;
+          const updatedMenu = { ...menu };
+          updatedMenu[editItem.category] = updatedMenu[editItem.category].map(item =>
+            item.id === editItem.id ? { ...item, name: editItem.name, price: parseFloat(editItem.price) } : item
+          );
+          setMenu(updatedMenu);
+          db.ref('settings').update({ menu: updatedMenu }).then(() => {
+            setEditItem(null);
+          }).catch(error => console.error("Error updating menu item:", error.message));
+        };
+
+        const deleteMenuItem = (category, id) => {
+          if (!db) return;
+          const updatedMenu = { ...menu };
+          updatedMenu[category] = updatedMenu[category].filter(item => item.id !== id);
+          if (updatedMenu[category].length === 0) delete updatedMenu[category];
+          setMenu(updatedMenu);
+          db.ref('settings').update({ menu: updatedMenu }).catch(error => console.error("Error deleting menu item:", error.message));
+        };
+
+        return (
+          <div className="section overflow-auto">
             <h2>Admin Section</h2>
-            <div style="margin-bottom: 15px;">
+            <div style={{ marginBottom: '15px' }}>
               <h3>Set Table Count</h3>
-              <input type="number" id="tableCount" value="${appData.tableCount}" style="width: 100px;" />
-              <button class="btn-blue" onclick="updateTableCount()">Update</button>
+              <input
+                type="number"
+                value={tableCount}
+                onChange={(e) => setTableCount(e.target.value)}
+                style={{ width: '100px' }}
+              />
+              <button onClick={updateTableCount} className="btn-blue">Update</button>
             </div>
-            <div style="margin-bottom: 15px;">
+            <div style={{ marginBottom: '15px' }}>
               <h3>Add Category</h3>
-              <input type="text" id="newCategory" placeholder="Category Name" />
-              <button class="btn-blue" onclick="addCategory()">Add Category</button>
+              <input
+                type="text"
+                placeholder="Category Name"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+              />
+              <button onClick={addCategory} className="btn-blue">Add Category</button>
             </div>
-            <div style="margin-bottom: 15px;">
+            <div style={{ marginBottom: '15px' }}>
               <h3>Add Menu Item</h3>
-              <select id="newItemCategory">
+              <select
+                value={newItem.category}
+                onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+              >
                 <option value="">Select Category</option>
-                ${Object.keys(appData.menu).map(category => `<option value="${category}">${category}</option>`).join('')}
+                {Object.keys(menu).map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
               </select>
-              <input type="text" id="newItemName" placeholder="Item Name" />
-              <input type="number" id="newItemPrice" placeholder="Price" style="width: 100px;" />
-              <button class="btn-blue" onclick="addMenuItem()">Add Item</button>
+              <input
+                type="text"
+                placeholder="Item Name"
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+              />
+              <input
+                type="number"
+                placeholder="Price"
+                value={newItem.price}
+                onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+                style={{ width: '100px' }}
+              />
+              <button onClick={addMenuItem} className="btn-blue">Add Item</button>
             </div>
-            <div style="margin-bottom: 15px;">
+            <div style={{ marginBottom: '15px' }}>
               <h3>Manage Menu</h3>
-        `;
-        Object.keys(appData.menu).forEach(category => {
-          html += `
-            <div style="margin-bottom: 10px;">
-              <h4>${category}</h4>
-          `;
-          appData.menu[category].forEach(item => {
-            html += `
-              <div class="flex-row">
-                <span style="margin-right: 10px;">${item.name} - $${item.price}</span>
-                <button class="btn-yellow" onclick="editMenuItem('${category}', ${item.id})">Edit</button>
-                <button class="btn-red" onclick="deleteMenuItem('${category}', ${item.id})">Delete</button>
-              </div>
-            `;
-          });
-          html += `</div>`;
-        });
-        html += `
+              {Object.keys(menu).map(category => (
+                <div key={category} style={{ marginBottom: '10px' }}>
+                  <h4>{category}</h4>
+                  {menu[category].map(item => (
+                    <div key={item.id} className="flex-row">
+                      <span style={{ marginRight: '10px' }}>{item.name} - ${item.price}</span>
+                      <button
+                        onClick={() => setEditItem({ ...item, category })}
+                        className="btn-yellow"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteMenuItem(category, item.id)}
+                        className="btn-red"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              {editItem && (
+                <div style={{ marginTop: '15px' }}>
+                  <h4>Edit Item</h4>
+                  <input
+                    type="text"
+                    value={editItem.name}
+                    onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    value={editItem.price}
+                    onChange={(e) => setEditItem({ ...editItem, price: e.target.value })}
+                    style={{ width: '100px' }}
+                  />
+                  <button onClick={updateMenuItem} className="btn-blue">Save</button>
+                  <button onClick={() => setEditItem(null)} className="btn-gray">Cancel</button>
+                </div>
+              )}
             </div>
             <h3>Order History</h3>
-        `;
-        const paidOrders = Object.entries(appData.orders).filter(([_, order]) => order && order.status === 'paid');
-        if (paidOrders.length === 0) {
-          html += `<p>No paid orders.</p>`;
-        } else {
-          paidOrders.forEach(([_, order]) => {
-            html += `
-              <div class="card">
-                <h4>${order.table} - ${new Date(order.paidTimestamp).toLocaleString()}</h4>
-                <ul>
-                  ${order.items.map(item => `<li>${item.name} - $${item.price}</li>`).join('')}
-                </ul>
-              </div>
-            `;
-          });
-        }
-        html += `
-            <button class="btn-gray" onclick="setSection('home')">Back to Home</button>
+            {orders.length === 0 ? (
+              <p>No paid orders.</p>
+            ) : (
+              orders.map(order => (
+                <div key={order.id} className="card">
+                  <h4>{order.table} - {new Date(order.paidTimestamp).toLocaleString()}</h4>
+                  <ul>
+                    {order.items.map((item, index) => (
+                      <li key={index}>{item.name} - ${item.price}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            )}
+            <button onClick={() => setSection('home')} className="btn-gray">Back to Home</button>
           </div>
-        `;
-        appDiv.innerHTML = html;
+        );
+      };
+
+      // Main App
+      const App = () => {
+        const [section, setSection] = useState('home');
+
+        return (
+          <ErrorBoundary>
+            <div>
+              {section === 'home' && <Home setSection={setSection} />}
+              {section === 'order' && <OrderSection setSection={setSection} />}
+              {section === 'kitchen' && <KitchenSection setSection={setSection} />}
+              {section === 'admin' && <AdminSection setSection={setSection} />}
+            </div>
+          </ErrorBoundary>
+        );
+      };
+
+      // Render the app only if Firebase is initialized
+      if (app && db) {
+        ReactDOM.render(<App />, document.getElementById('root'));
+        console.log("App rendered successfully. Firebase initialized:", app.name);
       }
-
-      window.updateTableCount = function() {
-        const tableCount = parseInt(document.getElementById('tableCount').value);
-        if (tableCount > 0) {
-          console.log("Updating table count:", tableCount);
-          db.ref('settings').update({ tableCount }).then(() => {
-            console.log("Table count updated successfully");
-          }).catch(error => console.error("Error updating table count:", error));
-        }
-      };
-
-      window.addCategory = function() {
-        const newCategory = document.getElementById('newCategory').value.trim();
-        if (newCategory && !appData.menu[newCategory]) {
-          appData.menu[newCategory] = [];
-          console.log("Adding category:", newCategory);
-          db.ref('settings').update({ menu: appData.menu }).then(() => {
-            console.log("Category added successfully");
-            document.getElementById('newCategory').value = '';
-          }).catch(error => console.error("Error adding category:", error));
-        }
-      };
-
-      window.addMenuItem = function() {
-        const category = document.getElementById('newItemCategory').value;
-        const name = document.getElementById('newItemName').value.trim();
-        const price = parseFloat(document.getElementById('newItemPrice').value);
-        if (category && name && price > 0) {
-          appData.menu[category].push({
-            id: Date.now(),
-            name: name,
-            price: price
-          });
-          console.log("Adding menu item:", name, "to category:", category);
-          db.ref('settings').update({ menu: appData.menu }).then(() => {
-            console.log("Menu item added successfully");
-            document.getElementById('newItemCategory').value = '';
-            document.getElementById('newItemName').value = '';
-            document.getElementById('newItemPrice').value = '';
-          }).catch(error => console.error("Error adding menu item:", error));
-        }
-      };
-
-      window.editMenuItem = function(category, id) {
-        const item = appData.menu[category].find(i => i.id === id);
-        if (item) {
-          const newName = prompt('Enter new name:', item.name);
-          const newPrice = parseFloat(prompt('Enter new price:', item.price));
-          if (newName && newPrice > 0) {
-            item.name = newName.trim();
-            item.price = newPrice;
-            console.log("Updating menu item:", item.id, "in category:", category);
-            db.ref('settings').update({ menu: appData.menu }).then(() => {
-              console.log("Menu item updated successfully");
-            }).catch(error => console.error("Error updating menu item:", error));
-          }
-        }
-      };
-
-      window.deleteMenuItem = function(category, id) {
-        appData.menu[category] = appData.menu[category].filter(i => i.id !== id);
-        if (appData.menu[category].length === 0) {
-          delete appData.menu[category];
-        }
-        console.log("Deleting menu item:", id, "from category:", category);
-        db.ref('settings').update({ menu: appData.menu }).then(() => {
-          console.log("Menu item deleted successfully");
-        }).catch(error => console.error("Error deleting menu item:", error));
-      };
-
-      // Initialize app
-      loadData();
-    })();
+    } catch (error) {
+      console.error("Runtime error:", error.message, error.stack);
+      displayError(
+        "Runtime Error",
+        "An unexpected error occurred.",
+        error.message
+      );
+    }
   </script>
 </body>
 </html>

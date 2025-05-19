@@ -6,47 +6,39 @@
   <title>Crispydelight Restaurant</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: #f9f9f9;
-      color: #333;
+      padding: 10px;
+      background-color: #f0f0f0;
     }
     .container {
-      max-width: 480px;
+      max-width: 360px;
       margin: 0 auto;
-      padding: 10px;
+      text-align: center;
     }
     h1, h2, h3, h4, h5 {
       color: #333;
-      margin-top: 12px;
-      margin-bottom: 8px;
     }
     button {
       padding: 10px;
-      margin: 6px 4px;
+      margin: 8px 4px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 15px;
-      transition: background-color 0.2s, transform 0.1s;
+      font-size: 16px;
     }
-    button:active {
-      transform: scale(0.98);
-    }
-    .btn-blue { background-color: #3498db; color: white; }
-    .btn-blue:hover { background-color: #2980b9; }
-    .btn-green { background-color: #2ecc71; color: white; }
-    .btn-green:hover { background-color: #27ae60; }
-    .btn-purple { background-color: #9b59b6; color: white; }
-    .btn-purple:hover { background-color: #8e44ad; }
-    .btn-gray { background-color: #7f8c8d; color: white; }
-    .btn-gray:hover { background-color: #6c7a7d; }
-    .btn-red { background-color: #e74c3c; color: white; }
-    .btn-red:hover { background-color: #c0392b; }
+    .btn-blue { background-color: #007bff; color: white; }
+    .btn-blue:hover { background-color: #0056b3; }
+    .btn-green { background-color: #28a745; color: white; }
+    .btn-green:hover { background-color: #1e7e34; }
+    .btn-purple { background-color: #6f42c1; color: white; }
+    .btn-purple:hover { background-color: #5a32a3; }
+    .btn-gray { background-color: #6c757d; color: white; }
+    .btn-gray:hover { background-color: #545b62; }
+    .btn-red { background-color: #dc3545; color: white; }
+    .btn-red:hover { background-color: #bd2130; }
     .btn-disabled {
-      background-color: #bdc3c7;
-      color: #7f8c8d;
+      background-color: #ccc;
       cursor: not-allowed;
     }
     .table-grid {
@@ -56,10 +48,10 @@
     }
     .order-item, .kitchen-order, .admin-order, .history-order {
       background-color: white;
-      padding: 12px;
+      padding: 10px;
       margin: 10px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
     .order-item.new, .kitchen-order.new, .history-order.new {
@@ -71,16 +63,14 @@
       to { opacity: 1; transform: translateY(0); }
     }
     input, select {
-      padding: 8px;
+      padding: 5px;
       margin: 5px;
-      border: 1px solid #ddd;
+      border: 1px solid #ccc;
       border-radius: 5px;
-      font-size: 14px;
     }
     .logo {
-      max-width: 120px;
+      max-width: 100px;
       margin: 10px auto;
-      display: block;
     }
     .loading {
       display: none;
@@ -95,294 +85,170 @@
     .total-sum {
       font-weight: bold;
       margin-top: 10px;
-      font-size: 16px;
-      color: #2c3e50;
     }
     .takeaway-toggle {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-    }
-    .takeaway-toggle input {
-      margin-right: 5px;
+      margin-left: 10px;
+      font-size: 14px;
     }
     .category-group {
-      margin: 15px 0;
-      padding: 12px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
     }
     .timestamp {
       font-size: 12px;
-      color: #7f8c8d;
+      color: #666;
       margin: 5px 0;
-    }
-    ul {
-      padding-left: 20px;
-      margin: 8px 0;
-    }
-    li {
-      margin-bottom: 4px;
-    }
-    .menu-item {
-      display: flex;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .menu-item-details {
-      flex-grow: 1;
-    }
-    .menu-item-name {
-      font-weight: bold;
-    }
-    .menu-item-price {
-      color: #7f8c8d;
-    }
-    .menu-item-controls {
-      display: flex;
-      align-items: center;
-    }
-    .menu-item-controls button {
-      width: 36px;
-      height: 36px;
-      padding: 0;
-      margin: 0 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    .menu-item-quantity {
-      width: 24px;
-      text-align: center;
-      font-size: 16px;
-    }
-    .search-box {
-      width: calc(100% - 20px);
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 20px;
-      border: 1px solid #ddd;
-      font-size: 16px;
-    }
-    .category-tabs {
-      display: flex;
-      overflow-x: auto;
-      margin: 10px 0;
-      padding: 5px 0;
-      scrollbar-width: none;
-    }
-    .category-tabs::-webkit-scrollbar {
-      display: none;
-    }
-    .category-tab {
-      padding: 8px 15px;
-      margin-right: 8px;
-      white-space: nowrap;
-      background-color: #f0f0f0;
-      border-radius: 20px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .category-tab.active {
-      background-color: #3498db;
-      color: white;
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    .section-title {
-      margin: 0;
-    }
-    .admin-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 10px 0;
-      font-size: 14px;
-    }
-    .admin-table th, .admin-table td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    .admin-table th {
-      background-color: #f2f2f2;
-    }
-    .menu-category {
-      margin-bottom: 20px;
-    }
-    .menu-category-header {
-      font-weight: bold;
-      font-size: 16px;
-      background-color: #f2f2f2;
-      padding: 8px;
-      border-radius: 5px;
-      margin-bottom: 10px;
-    }
-    .menu-item-row {
-      display: grid;
-      grid-template-columns: auto 80px 30px;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .item-options {
-      display: flex;
-      flex-direction: column;
-      margin-top: 8px;
-    }
-    .takeaway-checkbox {
-      display: flex;
-      align-items: center;
-      margin-top: 8px;
     }
   </style>
 </head>
 <body>
   <div id="loading" class="loading">Loading...</div>
   <div class="container" id="app">
-    <img src="https://via.placeholder.com/120x60?text=Crispydelight" alt="Crispydelight Logo" class="logo">
+    <img src="https://via.placeholder.com/100x50?text=Crispydelight" alt="Crispydelight Logo" class="logo">
   </div>
   <script>
     const DATABASE_URL = 'https://crispydelight-7ec1d-default-rtdb.firebaseio.com/';
     let currentSection = 'home';
     let selectedTable = null;
-    let selectedOrderId = null;
-    let selectedCategory = null;
-    let searchQuery = '';
+    let selectedOrderId = null; // For editing orders
     let tables = 10;
     let takeaway = true;
-    let menu = [];
-    let categories = [];
+    let categories = [
+  'Burgers',
+  'Special Menu',
+  'Extras',
+  'Fried Chicken',
+  'Pizza',
+  'Non-Veg Combos',
+  'Sandwich',
+  'Fries',
+  'Momo',
+  'Fried Chicken Combos',
+  'Bread Omelette',
+  'Wraps',
+  'Desserts',
+  'Milkshakes',
+  'Ice Cream Sundaes',
+  'Mojitos'
+];
+
+let menu = [
+  // Burgers
+  { id: 1, name: 'Classic Veg Burger', price: 59, category: 'Burgers', isFavorite: false },
+  { id: 2, name: 'Cheesy Veg Burger', price: 69, category: 'Burgers', isFavorite: false },
+  { id: 3, name: 'Paneer Burger', price: 89, category: 'Burgers', isFavorite: false },
+  { id: 4, name: 'Cheesy Paneer Burger', price: 99, category: 'Burgers', isFavorite: false },
+  { id: 5, name: 'Classic Chicken Burger', price: 89, category: 'Burgers', isFavorite: false },
+  { id: 6, name: 'Cheesy Chicken Burger', price: 99, category: 'Burgers', isFavorite: false },
+  { id: 7, name: 'Fried Chicken Burger', price: 119, category: 'Burgers', isFavorite: false },
+  { id: 8, name: 'Cheesy Fried Chicken Burger', price: 129, category: 'Burgers', isFavorite: false },
+  { id: 9, name: 'Super Tower Veg Burger', price: 129, category: 'Burgers', isFavorite: false },
+  { id: 10, name: 'Super Tower Chicken Burger', price: 139, category: 'Burgers', isFavorite: false },
+
+  // Special Menu
+  { id: 11, name: 'No Bun Fried Chicken Burger', price: 199, category: 'Special Menu', isFavorite: false },
+  { id: 12, name: 'Reverse Fried Chicken Burger', price: 199, category: 'Special Menu', isFavorite: false },
+  { id: 13, name: 'Cheesy Overloaded Fries', price: 119, category: 'Special Menu', isFavorite: false },
+
+  // Extras
+  { id: 14, name: 'Mayonnaise', price: 10, category: 'Extras', isFavorite: false },
+  { id: 15, name: 'Flavored Mayonnaise', price: 20, category: 'Extras', isFavorite: false },
+
+  // Fried Chicken
+  { id: 16, name: 'Fried Chicken Leg', price: 79, category: 'Fried Chicken', isFavorite: false },
+  { id: 17, name: 'Chicken Nuggets', price: 89, category: 'Fried Chicken', isFavorite: false },
+  { id: 18, name: 'Fried Chicken Wings', price: 99, category: 'Fried Chicken', isFavorite: false },
+  { id: 19, name: 'Fried Chicken Lollipop', price: 99, category: 'Fried Chicken', isFavorite: false },
+  { id: 20, name: 'Chicken Mini Popcorn (10 pieces)', price: 99, category: 'Fried Chicken', isFavorite: false },
+  { id: 21, name: 'Chicken Popcorn (18 pieces)', price: 159, category: 'Fried Chicken', isFavorite: false },
+  { id: 22, name: 'Chicken Strips (3 pieces)', price: 149, category: 'Fried Chicken', isFavorite: false },
+
+  // Pizza
+  { id: 23, name: 'Veg Pizza', price: 69, category: 'Pizza', isFavorite: false },
+  { id: 24, name: 'Corn Pizza', price: 79, category: 'Pizza', isFavorite: false },
+  { id: 25, name: 'Paneer Pizza', price: 89, category: 'Pizza', isFavorite: false },
+  { id: 26, name: 'Cheese Pizza', price: 99, category: 'Pizza', isFavorite: false },
+  { id: 27, name: 'Fried Chicken Pizza', price: 129, category: 'Pizza', isFavorite: false },
+  { id: 28, name: 'Hot & Spicy Chicken Pizza', price: 149, category: 'Pizza', isFavorite: false },
+  { id: 29, name: 'Delight Spl Veg Pizza (9")', price: 139, category: 'Pizza', isFavorite: false },
+  { id: 30, name: 'Delight Spl Chicken Pizza (9")', price: 159, category: 'Pizza', isFavorite: false },
+  { id: 31, name: 'Cheesy Overloaded Pizza (9")', price: 199, category: 'Pizza', isFavorite: false },
+
+  // Non-Veg Combos
+  { id: 32, name: 'Chicken OER, French Fries, Soft Drink', price: 129, category: 'Non-Veg Combos', isFavorite: false },
+  { id: 33, name: 'Hot & Spicy Chicken Pizza, Blue Sky Mojito, French Fries', price: 249, category: 'Non-Veg Combos', isFavorite: false },
+  { id: 34, name: 'Delight Spl Chicken Pizza, Fried Chicken Momo, Peri Peri Fries, Mojito, Fried Lego (1 pc), Lollipop (1 pc)', price: 299, category: 'Non-Veg Combos', isFavorite: false }, // Price assumed as not provided
+
+  // Sandwich
+  { id: 35, name: 'Veg Sandwich', price: 69, category: 'Sandwich', isFavorite: false },
+  { id: 36, name: 'Cheesy Veg Sandwich', price: 79, category: 'Sandwich', isFavorite: false },
+  { id: 37, name: 'Corn Sandwich', price: 89, category: 'Sandwich', isFavorite: false },
+  { id: 38, name: 'Cheesy Corn Sandwich', price: 99, category: 'Sandwich', isFavorite: false },
+  { id: 39, name: 'Paneer Sandwich', price: 99, category: 'Sandwich', isFavorite: false },
+  { id: 40, name: 'Cheesy Paneer Sandwich', price: 199, category: 'Sandwich', isFavorite: false },
+  { id: 41, name: 'Fried Chicken Sandwich', price: 129, category: 'Sandwich', isFavorite: false },
+  { id: 42, name: 'Cheesy Chicken Sandwich', price: 139, category: 'Sandwich', isFavorite: false },
+
+  // Fries
+  { id: 43, name: 'Normal Fries', price: 59, category: 'Fries', isFavorite: false },
+  { id: 44, name: 'Peri-Peri Fries', price: 69, category: 'Fries', isFavorite: false },
+  { id: 45, name: 'Peri-Peri Fries with Mayonnaise', price: 89, category: 'Fries', isFavorite: false },
+
+  // Momo
+  { id: 46, name: 'Mixed Veg Fried Momo', price: 89, category: 'Momo', isFavorite: false },
+  { id: 47, name: 'Paneer Fried Momo', price: 99, category: 'Momo', isFavorite: false },
+  { id: 48, name: 'Chicken Fried Momo', price: 99, category: 'Momo', isFavorite: false },
+
+  // Fried Chicken Combos
+  { id: 49, name: 'Fried Leg (3 pcs)', price: 209, category: 'Fried Chicken Combos', isFavorite: false },
+  { id: 50, name: '10 pc Fried Chicken', price: 249, category: 'Fried Chicken Combos', isFavorite: false },
+  { id: 51, name: 'Bucket Chicken', price: 349, category: 'Fried Chicken Combos', isFavorite: false },
+  { id: 52, name: 'Mixed Bucket Chicken (3 leg, 4 wings, 3 lollipop, 3 pc popcorn)', price: 425, category: 'Fried Chicken Combos', isFavorite: false },
+  { id: 53, name: '20 pc Popcorn + Peri Peri Fries', price: 249, category: 'Fried Chicken Combos', isFavorite: false },
+
+  // Bread Omelette
+  { id: 54, name: 'Bread Omelette', price: 69, category: 'Bread Omelette', isFavorite: false },
+  { id: 55, name: 'Double Bread Omelette', price: 79, category: 'Bread Omelette', isFavorite: false },
+  { id: 56, name: 'Cheesy Double Bread Omelette', price: 99, category: 'Bread Omelette', isFavorite: false },
+
+  // Wraps
+  { id: 57, name: 'Delight Spl Veg Wrap', price: 99, category: 'Wraps', isFavorite: false },
+  { id: 58, name: 'Delight Spl Chicken Wrap', price: 119, category: 'Wraps', isFavorite: false },
+  { id: 59, name: 'Delight Spl Fried Chicken Wrap', price: 139, category: 'Wraps', isFavorite: false },
+
+  // Desserts
+  { id: 60, name: 'Brownie with Ice Cream', price: 99, category: 'Desserts', isFavorite: false },
+  { id: 61, name: 'Death by Chocolate', price: 119, category: 'Desserts', isFavorite: false },
+
+  // Milkshakes
+  { id: 62, name: 'Rose Milk', price: 39, category: 'Milkshakes', isFavorite: false },
+  { id: 63, name: 'Chocolate Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
+  { id: 64, name: 'Oreo Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
+  { id: 65, name: 'Vanilla Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
+  { id: 66, name: 'Mango Milkshake', price: 79, category: 'Milkshakes', isFavorite: false },
+  { id: 67, name: 'KitKat Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
+  { id: 68, name: 'Strawberry Milkshake', price: 79, category: 'Milkshakes', isFavorite: false },
+
+  // Ice Cream Sundaes
+  { id: 69, name: 'Vanilla Sundae', price: 69, category: 'Ice Cream Sundaes', isFavorite: false },
+  { id: 70, name: 'Chocolate Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
+  { id: 71, name: 'Butterscotch Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
+  { id: 72, name: 'Strawberry Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
+  { id: 73, name: 'Cookies & Cream Sundae', price: 99, category: 'Ice Cream Sundaes', isFavorite: false },
+  { id: 74, name: 'Italian Chocolate Sundae', price: 99, category: 'Ice Cream Sundaes', isFavorite: false },
+
+  // Mojitos
+  { id: 75, name: 'Blue Sky Mojito', price: 79, category: 'Mojitos', isFavorite: false },
+  { id: 76, name: 'Mint Lime Mojito', price: 79, category: 'Mojitos', isFavorite: false },
+  { id: 77, name: 'Virgin Mojito', price: 79, category: 'Mojitos', isFavorite: false }
+];
     let currentOrder = {};
     let pollTimer = null;
     let lastOrdersState = {};
     let actionQueue = [];
     let isFetching = false;
-
-    // Initial menu categories and items
-    const initialCategories = [
-      'BURGERS', 'SPECIAL MENU', 'EXTRAS', 'FRIED CHICKEN', 'PIZZA', 
-      'NON-VEG COMBOS', 'SANDWICH', 'FRIES', 'MOMO', 'FRIED CHICKEN COMBOS', 
-      'BREAD OMELETTE', 'WRAPS', 'DESSERTS', 'MILKSHAKES', 'ICE CREAM SUNDAES', 'MOJITOS'
-    ];
-    
-    const initialMenu = [
-      // BURGERS
-      { id: 1, name: 'Classic Veg Burger', price: 59, category: 'BURGERS', isFavorite: true },
-      { id: 2, name: 'Cheesy Veg Burger', price: 69, category: 'BURGERS', isFavorite: false },
-      { id: 3, name: 'Paneer Burger', price: 89, category: 'BURGERS', isFavorite: true },
-      { id: 4, name: 'Cheesy Paneer Burger', price: 99, category: 'BURGERS', isFavorite: false },
-      { id: 5, name: 'Classic Chicken Burger', price: 89, category: 'BURGERS', isFavorite: true },
-      { id: 6, name: 'Cheesy Chicken Burger', price: 99, category: 'BURGERS', isFavorite: false },
-      { id: 7, name: 'Fried Chicken Burger', price: 119, category: 'BURGERS', isFavorite: true },
-      { id: 8, name: 'Cheesy Fried Chicken Burger', price: 129, category: 'BURGERS', isFavorite: false },
-      { id: 9, name: 'Super Tower Veg Burger', price: 129, category: 'BURGERS', isFavorite: false },
-      { id: 10, name: 'Super Tower Chicken Burger', price: 139, category: 'BURGERS', isFavorite: false },
-      
-      // SPECIAL MENU
-      { id: 11, name: 'No Bun Fried Chicken Burger', price: 199, category: 'SPECIAL MENU', isFavorite: true },
-      { id: 12, name: 'Reverse Fried Chicken Burger', price: 199, category: 'SPECIAL MENU', isFavorite: false },
-      { id: 13, name: 'Cheesy Overloaded Fries', price: 119, category: 'SPECIAL MENU', isFavorite: true },
-      
-      // EXTRAS
-      { id: 14, name: 'Mayonnaise', price: 10, category: 'EXTRAS', isFavorite: false },
-      { id: 15, name: 'Flavored Mayonnaise', price: 20, category: 'EXTRAS', isFavorite: false },
-      
-      // FRIED CHICKEN
-      { id: 16, name: 'Fried Chicken Leg', price: 79, category: 'FRIED CHICKEN', isFavorite: true },
-      { id: 17, name: 'Chicken Nuggets', price: 89, category: 'FRIED CHICKEN', isFavorite: false },
-      { id: 18, name: 'Fried Chicken Wings', price: 99, category: 'FRIED CHICKEN', isFavorite: false },
-      { id: 19, name: 'Fried Chicken Lollipop', price: 99, category: 'FRIED CHICKEN', isFavorite: false },
-      { id: 20, name: 'Chicken Mini Popcorn (10 pieces)', price: 99, category: 'FRIED CHICKEN', isFavorite: true },
-      { id: 21, name: 'Chicken Popcorn (18 pieces)', price: 159, category: 'FRIED CHICKEN', isFavorite: false },
-      { id: 22, name: 'Chicken Strips (3 pieces)', price: 149, category: 'FRIED CHICKEN', isFavorite: false },
-      
-      // PIZZA
-      { id: 23, name: 'Veg Pizza', price: 69, category: 'PIZZA', isFavorite: false },
-      { id: 24, name: 'Corn Pizza', price: 79, category: 'PIZZA', isFavorite: false },
-      { id: 25, name: 'Paneer Pizza', price: 89, category: 'PIZZA', isFavorite: false },
-      { id: 26, name: 'Cheese Pizza', price: 99, category: 'PIZZA', isFavorite: true },
-      { id: 27, name: 'Fried Chicken Pizza', price: 129, category: 'PIZZA', isFavorite: false },
-      { id: 28, name: 'Hot & Spicy Chicken Pizza', price: 149, category: 'PIZZA', isFavorite: false },
-      { id: 29, name: 'Delight Spl Veg Pizza (9")', price: 139, category: 'PIZZA', isFavorite: false },
-      { id: 30, name: 'Delight Spl Chicken Pizza (9")', price: 159, category: 'PIZZA', isFavorite: true },
-      { id: 31, name: 'Cheesy Overloaded Pizza (9")', price: 199, category: 'PIZZA', isFavorite: false },
-      
-      // NON-VEG COMBOS
-      { id: 32, name: 'Chicken OER, French Fries, Soft Drink', price: 129, category: 'NON-VEG COMBOS', isFavorite: false },
-      { id: 33, name: 'Hot & Spicy Chicken Pizza, Blue Sky Mojito, French Fries', price: 249, category: 'NON-VEG COMBOS', isFavorite: false },
-      { id: 34, name: 'Delight Spl Chicken Pizza, Fried Chicken Momo, Peri Peri Fries, Mojito, Fried Leg (1 pc), Lollipop (1 pc)', price: 299, category: 'NON-VEG COMBOS', isFavorite: true },
-      
-      // SANDWICH
-      { id: 35, name: 'Veg Sandwich', price: 69, category: 'SANDWICH', isFavorite: false },
-      { id: 36, name: 'Cheesy Veg Sandwich', price: 79, category: 'SANDWICH', isFavorite: false },
-      { id: 37, name: 'Corn Sandwich', price: 89, category: 'SANDWICH', isFavorite: false },
-      { id: 38, name: 'Cheesy Corn Sandwich', price: 99, category: 'SANDWICH', isFavorite: false },
-      { id: 39, name: 'Paneer Sandwich', price: 99, category: 'SANDWICH', isFavorite: false },
-      { id: 40, name: 'Cheesy Paneer Sandwich', price: 199, category: 'SANDWICH', isFavorite: false },
-      { id: 41, name: 'Fried Chicken Sandwich', price: 129, category: 'SANDWICH', isFavorite: true },
-      { id: 42, name: 'Cheesy Chicken Sandwich', price: 139, category: 'SANDWICH', isFavorite: false },
-      
-      // FRIES
-      { id: 43, name: 'Normal Fries', price: 59, category: 'FRIES', isFavorite: true },
-      { id: 44, name: 'Peri-Peri Fries', price: 69, category: 'FRIES', isFavorite: false },
-      { id: 45, name: 'Peri-Peri Fries with Mayonnaise', price: 89, category: 'FRIES', isFavorite: false },
-      
-      // MOMO
-      { id: 46, name: 'Mixed Veg Fried Momo', price: 89, category: 'MOMO', isFavorite: false },
-      { id: 47, name: 'Paneer Fried Momo', price: 99, category: 'MOMO', isFavorite: false },
-      { id: 48, name: 'Chicken Fried Momo', price: 99, category: 'MOMO', isFavorite: true },
-      
-      // FRIED CHICKEN COMBOS
-      { id: 49, name: 'Fried Leg (3 pcs)', price: 209, category: 'FRIED CHICKEN COMBOS', isFavorite: false },
-      { id: 50, name: '10 pc Fried Chicken', price: 249, category: 'FRIED CHICKEN COMBOS', isFavorite: false },
-      { id: 51, name: 'Bucket Chicken', price: 349, category: 'FRIED CHICKEN COMBOS', isFavorite: true },
-      { id: 52, name: 'Mixed Bucket Chicken (3 leg, 4 wings, 3 lollipop, 3 pc popcorn)', price: 425, category: 'FRIED CHICKEN COMBOS', isFavorite: false },
-      { id: 53, name: '20 pc Popcorn + Peri Peri Fries', price: 249, category: 'FRIED CHICKEN COMBOS', isFavorite: false },
-      
-      // BREAD OMELETTE
-      { id: 54, name: 'Bread Omelette', price: 69, category: 'BREAD OMELETTE', isFavorite: false },
-      { id: 55, name: 'Double Bread Omelette', price: 79, category: 'BREAD OMELETTE', isFavorite: true },
-      { id: 56, name: 'Cheesy Double Bread Omelette', price: 99, category: 'BREAD OMELETTE', isFavorite: false },
-      
-      // WRAPS
-      { id: 57, name: 'Delight Spl Veg Wrap', price: 99, category: 'WRAPS', isFavorite: false },
-      { id: 58, name: 'Delight Spl Chicken Wrap', price: 119, category: 'WRAPS', isFavorite: true },
-      { id: 59, name: 'Delight Spl Fried Chicken Wrap', price: 139, category: 'WRAPS', isFavorite: false },
-      
-      // DESSERTS
-      { id: 60, name: 'Brownie with Ice Cream', price: 99, category: 'DESSERTS', isFavorite: true },
-      { id: 61, name: 'Death by Chocolate', price: 119, category: 'DESSERTS', isFavorite: false },
-      
-      // MILKSHAKES
-      { id: 62, name: 'Rose Milk (Buy 2 Get 1 Free)', price: 39, category: 'MILKSHAKES', isFavorite: false },
-      { id: 63, name: 'Chocolate (Buy 2 Get 1 Free)', price: 89, category: 'MILKSHAKES', isFavorite: true },
-      { id: 64, name: 'Oreo (Buy 2 Get 1 Free)', price: 89, category: 'MILKSHAKES', isFavorite: false },
-      { id: 65, name: 'Vanilla (Buy 2 Get 1 Free)', price: 89, category: 'MILKSHAKES', isFavorite: false },
-      { id: 66, name: 'Mango (Buy 2 Get 1 Free)', price: 79, category: 'MILKSHAKES', isFavorite: false },
-      { id: 67, name: 'KitKat (Buy 2 Get 1 Free)', price: 89, category: 'MILKSHAKES', isFavorite: false },
-      { id: 68, name: 'Strawberry (Buy 2 Get 1 Free)', price: 79, category: 'MILKSHAKES', isFavorite: false },
-      
-      // ICE CREAM SUNDAES
-      { id: 69, name: 'Vanilla Sundae', price: 69, category: 'ICE CREAM SUNDAES', isFavorite: false },
-      { id: 70, name: 'Chocolate Sundae', price: 79, category: 'ICE CREAM SUNDAES', isFavorite: true },
-      { id: 71, name: 'Butterscotch Sundae', price: 79, category: 'ICE CREAM SUNDAES', isFavorite: false },
-      { id: 72, name: 'Strawberry Sundae', price: 79, category: 'ICE CREAM SUNDAES', isFavorite: false },
-      { id: 73, name: 'Cookies & Cream Sundae', price: 99, category: 'ICE CREAM SUNDAES', isFavorite: false },
-      { id: 74, name: 'Italian Chocolate Sundae', price: 99, category: 'ICE CREAM SUNDAES', isFavorite: false },
-      
-      // MOJITOS
-      { id: 75, name: 'Blue Sky Mojito (Buy 1 Get 1 Free)', price: 79, category: 'MOJITOS', isFavorite: true },
-      { id: 76, name: 'Mint Lime Mojito (Buy 1 Get 1 Free)', price: 79, category: 'MOJITOS', isFavorite: false },
-      { id: 77, name: 'Virgin Mojito (Buy 1 Get 1 Free)', price: 79, category: 'MOJITOS', isFavorite: false }
-    ];
 
     // Debounce utility
     function debounce(func, wait) {
@@ -422,22 +288,13 @@
         if (config) {
           tables = config.tables || tables;
           takeaway = config.takeaway !== undefined ? config.takeaway : takeaway;
-          menu = config.menu && config.menu.length > 0 ? config.menu : initialMenu;
-          categories = config.categories && config.categories.length > 0 ? config.categories : initialCategories;
-        } else {
-          // First time setup - use initial values
-          menu = initialMenu;
-          categories = initialCategories;
-          // Save initial config
-          await saveConfig();
+          menu = config.menu || menu;
+          categories = config.categories || categories;
         }
         console.log('Config loaded:', { tables, takeaway, menu, categories });
       } catch (error) {
         console.error('Failed to load config:', error);
-        // Set default values on error
-        menu = initialMenu;
-        categories = initialCategories;
-        alert('Error loading configuration. Using default values.');
+        alert('Error loading configuration. Check Firebase rules, endpoint, or network.');
       }
       showLoading(false);
       render();
@@ -453,13 +310,12 @@
           body: JSON.stringify({ tables, takeaway, menu, categories })
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        console.log('Config saved successfully');
+        console.log('Config saved:', { tables, takeaway, menu, categories });
       } catch (error) {
         console.error('Failed to save config:', error);
         alert('Error saving configuration. Check Firebase rules or network.');
       }
       showLoading(false);
-      render();
     }
 
     function showLoading(show) {
@@ -478,7 +334,7 @@
         return;
       }
       app.innerHTML = `
-        <img src="https://via.placeholder.com/120x60?text=Crispydelight" alt="Crispydelight Logo" class="logo">
+        <img src="https://via.placeholder.com/100x50?text=Crispydelight" alt="Crispydelight Logo" class="logo">
       `;
 
       if (currentSection === 'home') {
@@ -500,7 +356,7 @@
       } else if (currentSection === 'history') {
         renderHistorySection();
       }
-      showLoading(false);
+      showLoading(false); // Ensure loading is cleared
       console.log('Rendered section:', currentSection, 'Selected table:', selectedTable, 'Selected order:', selectedOrderId);
     }
 
@@ -514,8 +370,6 @@
       selectedTable = null;
       selectedOrderId = null;
       currentOrder = {};
-      selectedCategory = null;
-      searchQuery = '';
       lastOrdersState = {};
       showLoading(false);
       render();
@@ -603,10 +457,7 @@
           <h3>Place Order</h3>
           <div class="table-grid">
             ${Array.from({ length: tables }, (_, i) => `<button class="btn-blue" onclick="selectTable('Table ${i + 1}')">Table ${i + 1}</button>`).join('')}
-            <div class="takeaway-toggle">
-              <input type="checkbox" id="takeawayCheckbox" ${takeaway ? 'checked' : ''} onchange="toggleTakeaway(this.checked)">
-              <label for="takeawayCheckbox">Takeaway</label>
-            </div>
+            ${takeaway ? `<button class="btn-blue" onclick="selectTable('Takeaway')">Takeaway</button>` : ''}
           </div>
           <h3>Current Orders</h3>
         `;
@@ -638,11 +489,6 @@
       app.innerHTML = html;
       app.appendChild(ordersContainer);
       showLoading(false);
-    }
-
-    function toggleTakeaway(checked) {
-      takeaway = checked;
-      console.log('Takeaway option changed:', takeaway);
     }
 
     function selectTable(table) {
@@ -741,551 +587,550 @@
                 <span>${item.name} (₹${item.price}) - Takeaway</span>
                 <button class="btn-red" onclick="updateOrder(${item.id}, -1, true)">-</button>
                 <span>${takeawayOrder.quantity}</span>
-                <button class="btn-green" onclick="updateOrder(${item.id}, 1, true)">+</button
+                <button class="btn-green" onclick="updateOrder(${item.id}, 1, true)">+</button>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+      });
+
+      html += `<p class="total-sum">Total: ₹${total}</p>`;
+      html += `<button class="btn-blue" onclick="confirmOrder()">Confirm ${selectedOrderId ? 'Updated ' : ''}Order</button>`;
+      app.innerHTML = html;
+      console.log('Menu section rendered for table:', selectedTable, 'Total:', total);
+    }
+
+    function updateOrder(itemId, delta, isTakeaway) {
+      queueAction(() => {
+        const key = `${itemId}_${isTakeaway ? 'takeaway' : 'dinein'}`;
+        if (!currentOrder[key]) {
+          currentOrder[key] = { quantity: 0, isTakeaway };
+        }
+        currentOrder[key].quantity = (currentOrder[key].quantity || 0) + delta;
+        if (currentOrder[key].quantity <= 0) {
+          delete currentOrder[key];
+        }
+        render();
+      }, 'updateOrder');
+    }
+
+    async function confirmOrder() {
+      queueAction(async () => {
+        const button = document.querySelector('button[onclick="confirmOrder()"]');
+        button.disabled = true;
+        button.classList.add('btn-disabled');
+        button.textContent = 'Processing...';
+        const items = Object.entries(currentOrder).map(([key, { quantity, isTakeaway }]) => {
+          const itemId = parseInt(key.split('_')[0]);
+          const item = menu.find(m => m.id === itemId);
+          return { ...item, quantity, isTakeaway };
+        }).filter(item => item.quantity > 0);
+        if (items.length === 0) {
+          alert('Please add items to the order.');
+          button.disabled = false;
+          button.classList.remove('btn-disabled');
+          button.textContent = `Confirm ${selectedOrderId ? 'Updated ' : ''}Order`;
+          return;
+        }
+
+        showLoading(true);
+        try {
+          const url = selectedOrderId ? `${DATABASE_URL}orders/${selectedOrderId}.json` : `${DATABASE_URL}orders.json`;
+          const method = selectedOrderId ? 'PUT' : 'POST';
+          const body = {
+            table: selectedTable,
+            items,
+            status: 'pending',
+            timestamp: selectedOrderId ? Date.now() : Date.now() // Update timestamp for edits
+          };
+          const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          console.log(`${selectedOrderId ? 'Order updated' : 'Order confirmed'}:`, { table: selectedTable, items });
+          currentOrder = {};
+          selectedTable = null;
+          selectedOrderId = null;
+          render();
+          startPolling();
+        } catch (error) {
+          console.error(`Failed to ${selectedOrderId ? 'update' : 'confirm'} order:`, error);
+          alert(`Error ${selectedOrderId ? 'updating' : 'confirming'} order. Check Firebase rules, endpoint, or network.`);
+        }
+        button.disabled = false;
+        button.classList.remove('btn-disabled');
+        button.textContent = `Confirm ${selectedOrderId ? 'Updated ' : ''}Order`;
+        showLoading(false);
+      }, 'confirmOrder');
+    }
+
+    async function renderKitchenSection() {
+      if (currentSection !== 'kitchen') {
+        console.log('Skipping renderKitchenSection: not in kitchen section');
+        return;
+      }
+      isFetching = true;
+      showLoading(true);
+      let orders = [];
+      try {
+        const response = await fetch(`${DATABASE_URL}orders.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const data = await response.json();
+        orders = data ? Object.entries(data)
+          .map(([id, order]) => ({ id, ...order }))
+          .filter(o => o.status === 'pending')
+          .sort((a, b) => a.timestamp - b.timestamp) : [];
+        console.log('Kitchen orders fetched:', orders);
+
+        // Update DOM incrementally
+        updateKitchenOrdersDOM(orders);
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        alert('Error loading kitchen orders. Check Firebase rules, endpoint, or network.');
+      }
+      showLoading(false);
+      isFetching = false;
+      processQueue();
+    }
+
+    function updateKitchenOrdersDOM(orders) {
+      const app = document.getElementById('app');
+      if (!app) return;
+
+      // Check if orders have changed
+      const newState = JSON.stringify(orders.map(o => ({ id: o.id, status: o.status, timestamp: o.timestamp })));
+      if (newState === lastOrdersState.kitchen) {
+        console.log('No changes in kitchen orders, updating timestamps only');
+        updateTimestamps();
+        return;
+      }
+      lastOrdersState.kitchen = newState;
+
+      // Get current order IDs
+      const currentOrderEls = Array.from(document.getElementsByClassName('kitchen-order'));
+      const currentOrderIds = currentOrderEls.map(el => el.id.replace('kitchen-order-', ''));
+
+      // New order IDs
+      const newOrderIds = orders.map(o => o.id);
+
+      // Remove old orders
+      currentOrderEls.forEach(el => {
+        if (!newOrderIds.includes(el.id.replace('kitchen-order-', ''))) {
+          el.style.opacity = '0';
+          setTimeout(() => el.remove(), 300);
+        }
+      });
+
+      // Prepare base HTML
+      let html = `<h2>Kitchen Section</h2>`;
+      const ordersContainer = document.createElement('div');
+      orders.forEach(order => {
+        let total = 0;
+        let itemLines = [];
+        order.items.forEach(item => {
+          for (let i = 0; i < item.quantity; i++) {
+            itemLines.push(`<li>${item.name} x1 - ₹${item.price} ${item.isTakeaway ? '(Takeaway)' : '(Dine-in)'}</li>`);
+            total += item.price;
+          }
+        });
+        const isNew = !currentOrderIds.includes(order.id);
+        const receivedTime = new Date(order.timestamp).toLocaleTimeString();
+        const minutesSince = Math.floor((Date.now() - order.timestamp) / 60000);
+        ordersContainer.innerHTML += `
+          <div class="kitchen-order ${isNew ? 'new' : ''}" id="kitchen-order-${order.id}">
+            <h3>${order.table}</h3>
+            <p class="timestamp">Received: ${receivedTime} | Time since order: ${minutesSince} min</p>
+            <ul>${itemLines.join('')}</ul>
+            <p class="total-sum">Total: ₹${total}</p>
+            <button class="btn-green" onclick="markReady('${order.id}', this)">Mark Ready</button>
+          </div>
+        `;
+      });
+      app.innerHTML = html;
+      app.appendChild(ordersContainer);
+    }
+
+    function updateTimestamps() {
+      const orders = document.getElementsByClassName('kitchen-order');
+      Array.from(orders).forEach(orderEl => {
+        const orderId = orderEl.id.replace('kitchen-order-', '');
+        const order = lastOrdersState.kitchen ? JSON.parse(lastOrdersState.kitchen).find(o => o.id === orderId) : null;
+        if (order) {
+          const timestamp = order.timestamp;
+          const receivedTime = new Date(timestamp).toLocaleTimeString();
+          const minutesSince = Math.floor((Date.now() - timestamp) / 60000);
+          const timestampEl = orderEl.querySelector('.timestamp');
+          if (timestampEl) {
+            timestampEl.textContent = `Received: ${receivedTime} | Time since order: ${minutesSince} min`;
+          }
+        }
+      });
+    }
+
+    async function markReady(orderId, button) {
+      queueAction(async () => {
+        button.disabled = true;
+        button.classList.add('btn-disabled');
+        button.textContent = 'Processing...';
+        showLoading(true);
+        const startTime = Date.now();
+        try {
+          const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'ready' })
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          console.log(`Order marked ready: ${orderId}, took ${Date.now() - startTime}ms`);
+          const orderEl = document.getElementById(`kitchen-order-${orderId}`);
+          if (orderEl) {
+            orderEl.style.opacity = '0';
+            setTimeout(() => orderEl.remove(), 300);
+          }
+        } catch (error) {
+          console.error('Failed to mark ready:', error);
+          alert('Error marking order as ready. Check Firebase rules, endpoint, or network.');
+          button.disabled = false;
+          button.classList.remove('btn-disabled');
+          button.textContent = 'Mark Ready';
+        }
+        showLoading(false);
+        setTimeout(render, 500);
+      }, 'markReady');
+    }
+
+    async function renderAdminSection() {
+      showLoading(true);
+      let orders = [];
+      try {
+        const response = await fetch(`${DATABASE_URL}orders.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const data = await response.json();
+        orders = data ? Object.entries(data)
+          .map(([id, order]) => ({ id, ...order }))
+          .filter(o => o.status === 'paid') : [];
+        console.log('Admin orders fetched:', orders);
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        alert('Error loading order history. Check Firebase rules, endpoint, or network.');
+      }
+
+      const app = document.getElementById('app');
+      if (!app) return;
+      let html = `
+        <h2>Admin Section</h2>
+        <button class="btn-gray" onclick="navigate('home')">Back</button>
+        <h3>Configuration</h3>
+        <div>
+          <label>Tables:</label>
+          <input type="number" id="tables" value="${tables}" onchange="updateTables(this.value)">
+        </div>
+        <div>
+          <label><input type="checkbox" id="takeaway" ${takeaway ? 'checked' : ''} onchange="updateTakeaway(this.checked)"> Takeaway</label>
+        </div>
+        <div>
+          <h4>Categories</h4>
+          <div id="category-items">
+            ${categories.map(cat => `
+              <div>
+                <input type="text" value="${cat}" onchange="updateCategory('${cat}', this.value)">
+                <button class="btn-red" onclick="deleteCategory('${cat}')">Delete</button>
+              </div>
+            `).join('')}
+          </div>
+          <input type="text" id="new-category" placeholder="New category">
+          <button class="btn-blue" onclick="addCategory()">Add Category</button>
+        </div>
+        <div>
+          <h4>Menu</h4>
+          <div id="menu-items"></div>
+          <button class="btn-blue" onclick="addMenuItem()">Add Menu Item</button>
+        </div>
+        <button class="btn-purple" onclick="saveConfig()">Save Configuration</button>
+        <h3>Order History</h3>
+        <button class="btn-blue" onclick="exportOrderHistory()">Download Order History (CSV)</button>
+      `;
+      orders.forEach(order => {
+        const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        html += `
+          <div class="admin-order">
+            <h4>${order.table}</h4>
+            <ul>
+              ${order.items.map(item => `<li>${item.name} x${item.quantity} - ₹${item.price} ${item.isTakeaway ? '(Takeaway)' : '(Dine-in)'}</li>`).join('')}
+            </ul>
+            <p class="total-sum">Total: ₹${total}</p>
+            <p>Paid: ${new Date(order.paidTimestamp).toLocaleString()}</p>
+          </div>
+        `;
+      });
+      app.innerHTML = html;
+
+      const menuItems = document.getElementById('menu-items');
+      if (menuItems) {
+        ['Uncategorized'].concat(categories).forEach(category => {
+          const categoryItems = menu.filter(item => (category === 'Uncategorized' ? !item.category : item.category === category));
+          if (categoryItems.length > 0) {
+            menuItems.innerHTML += `<h5>${category}</h5>`;
+            categoryItems.forEach(item => {
+              menuItems.innerHTML += `
+                <div>
+                  <input type="text" value="${item.name}" onchange="updateMenuItem(${item.id}, 'name', this.value)">
+                  <input type="number" value="${item.price}" onchange="updateMenuItem(${item.id}, 'price', this.value)">
+                  <select onchange="updateMenuItem(${item.id}, 'category', this.value)">
+                    <option value="" ${!item.category ? 'selected' : ''}>Uncategorized</option>
+                    ${categories.map(cat => `<option value="${cat}" ${item.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+                  </select>
+                  <label><input type="checkbox" ${item.isFavorite ? 'checked' : ''} onchange="updateMenuItem(${item.id}, 'isFavorite', this.checked)"> Favorite</label>
+                  <button class="btn-red" onclick="deleteMenuItem(${item.id})">Delete</button>
                 </div>
-                `;
-              });
-              html += `</div>`;
-            }
-          });
-    
-          html += `<p class="total-sum">Total: ₹${total}</p>`;
-          html += `<button class="btn-blue" onclick="confirmOrder()">Confirm ${selectedOrderId ? 'Updated ' : ''}Order</button>`;
-          app.innerHTML = html;
-          console.log('Menu section rendered for table:', selectedTable, 'Total:', total);
-        }
-    
-        function updateOrder(itemId, delta, isTakeaway) {
-          queueAction(() => {
-            const key = `${itemId}_${isTakeaway ? 'takeaway' : 'dinein'}`;
-            if (!currentOrder[key]) {
-              currentOrder[key] = { quantity: 0, isTakeaway };
-            }
-            currentOrder[key].quantity = (currentOrder[key].quantity || 0) + delta;
-            if (currentOrder[key].quantity <= 0) {
-              delete currentOrder[key];
-            }
-            render();
-          }, 'updateOrder');
-        }
-    
-        async function confirmOrder() {
-          queueAction(async () => {
-            const button = document.querySelector('button[onclick="confirmOrder()"]');
-            button.disabled = true;
-            button.classList.add('btn-disabled');
-            button.textContent = 'Processing...';
-            const items = Object.entries(currentOrder).map(([key, { quantity, isTakeaway }]) => {
-              const itemId = parseInt(key.split('_')[0]);
-              const item = menu.find(m => m.id === itemId);
-              return { ...item, quantity, isTakeaway };
-            }).filter(item => item.quantity > 0);
-            if (items.length === 0) {
-              alert('Please add items to the order.');
-              button.disabled = false;
-              button.classList.remove('btn-disabled');
-              button.textContent = `Confirm ${selectedOrderId ? 'Updated ' : ''}Order`;
-              return;
-            }
-    
-            showLoading(true);
-            try {
-              const url = selectedOrderId ? `${DATABASE_URL}orders/${selectedOrderId}.json` : `${DATABASE_URL}orders.json`;
-              const method = selectedOrderId ? 'PUT' : 'POST';
-              const body = {
-                table: selectedTable,
-                items,
-                status: 'pending',
-                timestamp: Date.now() // Update timestamp for edits
-              };
-              const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-              });
-              if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-              console.log(`${selectedOrderId ? 'Order updated' : 'Order confirmed'}:`, { table: selectedTable, items });
-              currentOrder = {};
-              selectedTable = null;
-              selectedOrderId = null;
-              render();
-              startPolling();
-            } catch (error) {
-              console.error(`Failed to ${selectedOrderId ? 'update' : 'confirm'} order:`, error);
-              alert(`Error ${selectedOrderId ? 'updating' : 'confirming'} order. Check Firebase rules, endpoint, or network.`);
-            }
-            button.disabled = false;
-            button.classList.remove('btn-disabled');
-            button.textContent = `Confirm ${selectedOrderId ? 'Updated ' : ''}Order`;
-            showLoading(false);
-          }, 'confirmOrder');
-        }
-    
-        async function renderKitchenSection() {
-          if (currentSection !== 'kitchen') {
-            console.log('Skipping renderKitchenSection: not in kitchen section');
-            return;
-          }
-          isFetching = true;
-          showLoading(true);
-          let orders = [];
-          try {
-            const response = await fetch(`${DATABASE_URL}orders.json`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            const data = await response.json();
-            orders = data ? Object.entries(data)
-              .map(([id, order]) => ({ id, ...order }))
-              .filter(o => o.status === 'pending')
-              .sort((a, b) => a.timestamp - b.timestamp) : [];
-            console.log('Kitchen orders fetched:', orders);
-    
-            // Update DOM incrementally
-            updateKitchenOrdersDOM(orders);
-          } catch (error) {
-            console.error('Failed to fetch orders:', error);
-            alert('Error loading kitchen orders. Check Firebase rules, endpoint, or network.');
-          }
-          showLoading(false);
-          isFetching = false;
-          processQueue();
-        }
-    
-        function updateKitchenOrdersDOM(orders) {
-          const app = document.getElementById('app');
-          if (!app) return;
-    
-          // Check if orders have changed
-          const newState = JSON.stringify(orders.map(o => ({ id: o.id, status: o.status, timestamp: o.timestamp })));
-          if (newState === lastOrdersState.kitchen) {
-            console.log('No changes in kitchen orders, updating timestamps only');
-            updateTimestamps();
-            return;
-          }
-          lastOrdersState.kitchen = newState;
-    
-          // Get current order IDs
-          const currentOrderEls = Array.from(document.getElementsByClassName('kitchen-order'));
-          const currentOrderIds = currentOrderEls.map(el => el.id.replace('kitchen-order-', ''));
-    
-          // New order IDs
-          const newOrderIds = orders.map(o => o.id);
-    
-          // Remove old orders
-          currentOrderEls.forEach(el => {
-            if (!newOrderIds.includes(el.id.replace('kitchen-order-', ''))) {
-              el.style.opacity = '0';
-              setTimeout(() => el.remove(), 300);
-            }
-          });
-    
-          // Prepare base HTML
-          let html = `<h2>Kitchen Section</h2>`;
-          const ordersContainer = document.createElement('div');
-          orders.forEach(order => {
-            let total = 0;
-            let itemLines = [];
-            order.items.forEach(item => {
-              for (let i = 0; i < item.quantity; i++) {
-                itemLines.push(`<li>${item.name} x1 - ₹${item.price} ${item.isTakeaway ? '(Takeaway)' : '(Dine-in)'}</li>`);
-                total += item.price;
-              }
-            });
-            const isNew = !currentOrderIds.includes(order.id);
-            const receivedTime = new Date(order.timestamp).toLocaleTimeString();
-            const minutesSince = Math.floor((Date.now() - order.timestamp) / 60000);
-            ordersContainer.innerHTML += `
-              <div class="kitchen-order ${isNew ? 'new' : ''}" id="kitchen-order-${order.id}">
-                <h3>${order.table}</h3>
-                <p class="timestamp">Received: ${receivedTime} | Time since order: ${minutesSince} min</p>
-                <ul>${itemLines.join('')}</ul>
-                <p class="total-sum">Total: ₹${total}</p>
-                <button class="btn-green" onclick="markReady('${order.id}', this)">Mark Ready</button>
-              </div>
-            `;
-          });
-          app.innerHTML = html;
-          app.appendChild(ordersContainer);
-        }
-    
-        function updateTimestamps() {
-          const orders = document.getElementsByClassName('kitchen-order');
-          Array.from(orders).forEach(orderEl => {
-            const orderId = orderEl.id.replace('kitchen-order-', '');
-            const order = lastOrdersState.kitchen ? JSON.parse(lastOrdersState.kitchen).find(o => o.id === orderId) : null;
-            if (order) {
-              const timestamp = order.timestamp;
-              const receivedTime = new Date(timestamp).toLocaleTimeString();
-              const minutesSince = Math.floor((Date.now() - timestamp) / 60000);
-              const timestampEl = orderEl.querySelector('.timestamp');
-              if (timestampEl) {
-                timestampEl.textContent = `Received: ${receivedTime} | Time since order: ${minutesSince} min`;
-              }
-            }
-          });
-        }
-    
-        async function markReady(orderId, button) {
-          queueAction(async () => {
-            button.disabled = true;
-            button.classList.add('btn-disabled');
-            button.textContent = 'Processing...';
-            showLoading(true);
-            const startTime = Date.now();
-            try {
-              const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'ready' })
-              });
-              if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-              console.log(`Order marked ready: ${orderId}, took ${Date.now() - startTime}ms`);
-              const orderEl = document.getElementById(`kitchen-order-${orderId}`);
-              if (orderEl) {
-                orderEl.style.opacity = '0';
-                setTimeout(() => orderEl.remove(), 300);
-              }
-            } catch (error) {
-              console.error('Failed to mark ready:', error);
-              alert('Error marking order as ready. Check Firebase rules, endpoint, or network.');
-              button.disabled = false;
-              button.classList.remove('btn-disabled');
-              button.textContent = 'Mark Ready';
-            }
-            showLoading(false);
-            setTimeout(render, 500);
-          }, 'markReady');
-        }
-    
-        async function renderAdminSection() {
-          showLoading(true);
-          let orders = [];
-          try {
-            const response = await fetch(`${DATABASE_URL}orders.json`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            const data = await response.json();
-            orders = data ? Object.entries(data)
-              .map(([id, order]) => ({ id, ...order }))
-              .filter(o => o.status === 'paid') : [];
-            console.log('Admin orders fetched:', orders);
-          } catch (error) {
-            console.error('Failed to fetch orders:', error);
-            alert('Error loading order history. Check Firebase rules, endpoint, or network.');
-          }
-    
-          const app = document.getElementById('app');
-          if (!app) return;
-          let html = `
-            <h2>Admin Section</h2>
-            <button class="btn-gray" onclick="navigate('home')">Back</button>
-            <h3>Configuration</h3>
-            <div>
-              <label>Tables:</label>
-              <input type="number" id="tables" value="${tables}" onchange="updateTables(this.value)">
-            </div>
-            <div>
-              <label><input type="checkbox" id="takeaway" ${takeaway ? 'checked' : ''} onchange="updateTakeaway(this.checked)"> Takeaway</label>
-            </div>
-            <div>
-              <h4>Categories</h4>
-              <div id="category-items">
-                ${categories.map(cat => `
-                  <div>
-                    <input type="text" value="${cat}" onchange="updateCategory('${cat}', this.value)">
-                    <button class="btn-red" onclick="deleteCategory('${cat}')">Delete</button>
-                  </div>
-                `).join('')}
-              </div>
-              <input type="text" id="new-category" placeholder="New category">
-              <button class="btn-blue" onclick="addCategory()">Add Category</button>
-            </div>
-            <div>
-              <h4>Menu</h4>
-              <div id="menu-items"></div>
-              <button class="btn-blue" onclick="addMenuItem()">Add Menu Item</button>
-            </div>
-            <button class="btn-purple" onclick="saveConfig()">Save Configuration</button>
-            <h3>Order History</h3>
-            <button class="btn-blue" onclick="exportOrderHistory()">Download Order History (CSV)</button>
-          `;
-          orders.forEach(order => {
-            const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            html += `
-              <div class="admin-order">
-                <h4>${order.table}</h4>
-                <ul>
-                  ${order.items.map(item => `<li>${item.name} x${item.quantity} - ₹${item.price} ${item.isTakeaway ? '(Takeaway)' : '(Dine-in)'}</li>`).join('')}
-                </ul>
-                <p class="total-sum">Total: ₹${total}</p>
-                <p>Paid: ${new Date(order.paidTimestamp).toLocaleString()}</p>
-              </div>
-            `;
-          });
-          app.innerHTML = html;
-    
-          const menuItems = document.getElementById('menu-items');
-          if (menuItems) {
-            ['Uncategorized'].concat(categories).forEach(category => {
-              const categoryItems = menu.filter(item => (category === 'Uncategorized' ? !item.category : item.category === category));
-              if (categoryItems.length > 0) {
-                menuItems.innerHTML += `<h5>${category}</h5>`;
-                categoryItems.forEach(item => {
-                  menuItems.innerHTML += `
-                    <div>
-                      <input type="text" value="${item.name}" onchange="updateMenuItem(${item.id}, 'name', this.value)">
-                      <input type="number" value="${item.price}" onchange="updateMenuItem(${item.id}, 'price', this.value)">
-                      <select onchange="updateMenuItem(${item.id}, 'category', this.value)">
-                        <option value="" ${!item.category ? 'selected' : ''}>Uncategorized</option>
-                        ${categories.map(cat => `<option value="${cat}" ${item.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-                      </select>
-                      <label><input type="checkbox" ${item.isFavorite ? 'checked' : ''} onchange="updateMenuItem(${item.id}, 'isFavorite', this.checked)"> Favorite</label>
-                      <button class="btn-red" onclick="deleteMenuItem(${item.id})">Delete</button>
-                    </div>
-                  `;
-                });
-              }
+              `;
             });
           }
-          showLoading(false);
-        }
-    
-        function addCategory() {
-          const input = document.getElementById('new-category');
-          const newCategory = input.value.trim();
-          if (newCategory && !categories.includes(newCategory)) {
-            categories.push(newCategory);
-            input.value = '';
-            render();
-          }
-        }
-    
-        function updateCategory(oldName, newName) {
-          if (newName && !categories.includes(newName)) {
-            categories = categories.map(cat => cat === oldName ? newName : cat);
-            menu = menu.map(item => item.category === oldName ? { ...item, category: newName } : item);
-            render();
-          }
-        }
-    
-        function deleteCategory(category) {
-          if (menu.some(item => item.category === category)) {
-            alert('Cannot delete category with menu items. Reassign or delete items first.');
-            return;
-          }
-          categories = categories.filter(cat => cat !== category);
-          render();
-        }
-    
-        function addMenuItem() {
-          menu.push({ id: menu.length + 1, name: 'New Item', price: 0, category: '', isFavorite: false });
-          render();
-        }
-    
-        function deleteMenuItem(id) {
-          menu = menu.filter(item => item.id !== id);
-          render();
-        }
-    
-        function updateMenuItem(id, field, value) {
-          menu = menu.map(item => item.id === id ? { ...item, [field]: field === 'price' ? parseFloat(value) || 0 : field === 'isFavorite' ? value : value } : item);
-          render();
-        }
-    
-        async function renderHistorySection() {
-          showLoading(true);
-          let orders = [];
-          try {
-            const response = await fetch(`${DATABASE_URL}orders.json`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            const data = await response.json();
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            orders = data ? Object.entries(data)
-              .map(([id, order]) => ({ id, ...order }))
-              .filter(o => {
-                const timestamp = o.status === 'paid' ? o.paidTimestamp : o.timestamp;
-                return timestamp >= today.getTime() && timestamp < tomorrow.getTime();
-              })
-              .sort((a, b) => (b.paidTimestamp || b.timestamp) - (a.paidTimestamp || a.timestamp)) : [];
-            console.log('Today\'s orders fetched:', orders);
-          } catch (error) {
-            console.error('Failed to fetch orders:', error);
-            alert('Error loading today\'s history. Check Firebase rules, endpoint, or network.');
-          }
-    
-          const app = document.getElementById('app');
-          if (!app) return;
-          let html = `
-            <h2>Today's Order History</h2>
-            <button class="btn-gray" onclick="navigate('home')">Back</button>
-            <button class="btn-red" onclick="deleteAllOrders()">Delete All Orders</button>
-          `;
-          orders.forEach(order => {
-            const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const timestamp = order.status === 'paid' ? order.paidTimestamp : order.timestamp;
-            html += `
-              <div class="history-order" id="history-${order.id}">
-                <h4>${order.table}</h4>
-                <ul>
-                  ${order.items.map(item => `<li>${item.name} x${item.quantity} - ₹${item.price} ${item.isTakeaway ? '(Takeaway)' : '(Dine-in)'}</li>`).join('')}
-                </ul>
-                <p class="total-sum">Total: ₹${total}</p>
-                <p>Status: ${order.status}</p>
-                <p>Time: ${new Date(timestamp).toLocaleTimeString()}</p>
-                <button class="btn-red" onclick="deleteOrder('${order.id}')">Delete</button>
-              </div>
-            `;
+        });
+      }
+      showLoading(false);
+    }
+
+    function addCategory() {
+      const input = document.getElementById('new-category');
+      const newCategory = input.value.trim();
+      if (newCategory && !categories.includes(newCategory)) {
+        categories.push(newCategory);
+        input.value = '';
+        render();
+      }
+    }
+
+    function updateCategory(oldName, newName) {
+      if (newName && !categories.includes(newName)) {
+        categories = categories.map(cat => cat === oldName ? newName : cat);
+        menu = menu.map(item => item.category === oldName ? { ...item, category: newName } : item);
+        render();
+      }
+    }
+
+    function deleteCategory(category) {
+      if (menu.some(item => item.category === category)) {
+        alert('Cannot delete category with menu items. Reassign or delete items first.');
+        return;
+      }
+      categories = categories.filter(cat => cat !== category);
+      render();
+    }
+
+    function addMenuItem() {
+      menu.push({ id: menu.length + 1, name: 'New Item', price: 0, category: '', isFavorite: false });
+      render();
+    }
+
+    function deleteMenuItem(id) {
+      menu = menu.filter(item => item.id !== id);
+      render();
+    }
+
+    function updateMenuItem(id, field, value) {
+      menu = menu.map(item => item.id === id ? { ...item, [field]: field === 'price' ? parseFloat(value) || 0 : field === 'isFavorite' ? value : value } : item);
+      render();
+    }
+
+    async function renderHistorySection() {
+      showLoading(true);
+      let orders = [];
+      try {
+        const response = await fetch(`${DATABASE_URL}orders.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const data = await response.json();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        orders = data ? Object.entries(data)
+          .map(([id, order]) => ({ id, ...order }))
+          .filter(o => {
+            const timestamp = o.status === 'paid' ? o.paidTimestamp : o.timestamp;
+            return timestamp >= today.getTime() && timestamp < tomorrow.getTime();
+          })
+          .sort((a, b) => (b.paidTimestamp || b.timestamp) - (a.paidTimestamp || a.timestamp)) : [];
+        console.log('Today\'s orders fetched:', orders);
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        alert('Error loading today\'s history. Check Firebase rules, endpoint, or network.');
+      }
+
+      const app = document.getElementById('app');
+      if (!app) return;
+      let html = `
+        <h2>Today's Order History</h2>
+        <button class="btn-gray" onclick="navigate('home')">Back</button>
+        <button class="btn-red" onclick="deleteAllOrders()">Delete All Orders</button>
+      `;
+      orders.forEach(order => {
+        const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const timestamp = order.status === 'paid' ? order.paidTimestamp : order.timestamp;
+        html += `
+          <div class="history-order" id="history-${order.id}">
+            <h4>${order.table}</h4>
+            <ul>
+              ${order.items.map(item => `<li>${item.name} x${item.quantity} - ₹${item.price} ${item.isTakeaway ? '(Takeaway)' : '(Dine-in)'}</li>`).join('')}
+            </ul>
+            <p class="total-sum">Total: ₹${total}</p>
+            <p>Status: ${order.status}</p>
+            <p>Time: ${new Date(timestamp).toLocaleTimeString()}</p>
+            <button class="btn-red" onclick="deleteOrder('${order.id}')">Delete</button>
+          </div>
+        `;
+      });
+      app.innerHTML = html;
+      showLoading(false);
+    }
+
+    async function deleteOrder(orderId) {
+      console.log('Attempting to delete order:', orderId);
+      if (window.confirm('Are you sure you want to delete this order?') &&
+          window.confirm('This action cannot be undone. Confirm deletion?')) {
+        showLoading(true);
+        try {
+          const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
           });
-          app.innerHTML = html;
-          showLoading(false);
-        }
-    
-        async function deleteOrder(orderId) {
-          console.log('Attempting to delete order:', orderId);
-          if (window.confirm('Are you sure you want to delete this order?') &&
-              window.confirm('This action cannot be undone. Confirm deletion?')) {
-            showLoading(true);
-            try {
-              const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
-              });
-              if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-              console.log(`Order deleted successfully: ${orderId}`);
-              const orderEl = document.getElementById(`history-${orderId}`);
-              if (orderEl) {
-                orderEl.style.opacity = '0';
-                setTimeout(() => orderEl.remove(), 300);
-              }
-            } catch (error) {
-              console.error('Failed to delete order:', error);
-              alert('Error deleting order. Check Firebase rules, endpoint, or network.');
-            }
-            showLoading(false);
-            setTimeout(() => render(), 500); // Delayed re-render
+          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          console.log(`Order deleted successfully: ${orderId}`);
+          const orderEl = document.getElementById(`history-${orderId}`);
+          if (orderEl) {
+            orderEl.style.opacity = '0';
+            setTimeout(() => orderEl.remove(), 300);
           }
+        } catch (error) {
+          console.error('Failed to delete order:', error);
+          alert('Error deleting order. Check Firebase rules, endpoint, or network.');
         }
-    
-        async function deleteAllOrders() {
-          console.log('Attempting to delete all today\'s orders');
-          if (window.confirm('Are you sure you want to delete all today\'s orders?') &&
-              window.confirm('This action cannot be undone. Confirm deletion?')) {
-            showLoading(true);
-            try {
-              const response = await fetch(`${DATABASE_URL}orders.json`);
-              if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-              const data = await response.json();
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              const tomorrow = new Date(today);
-              tomorrow.setDate(today.getDate() + 1);
-              const ordersToDelete = data ? Object.entries(data)
-                .filter(([_, order]) => {
-                  const timestamp = order.status === 'paid' ? order.paidTimestamp : order.timestamp;
-                  return timestamp >= today.getTime() && timestamp < tomorrow.getTime();
-                })
-                .map(([id]) => id) : [];
-    
-              console.log('Orders to delete:', ordersToDelete);
-              for (const orderId of ordersToDelete) {
-                const delResponse = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
-                  method: 'DELETE',
-                  headers: { 'Content-Type': 'application/json' }
-                });
-                if (!delResponse.ok) throw new Error(`HTTP ${delResponse.status}: ${delResponse.statusText}`);
-              }
-              console.log(`Deleted ${ordersToDelete.length} orders`);
-              render();
-            } catch (error) {
-              console.error('Failed to delete all orders:', error);
-              alert('Error deleting orders. Check Firebase rules, endpoint, or network.');
-            }
-            showLoading(false);
-          }
-        }
-    
-        function updateTables(value) {
-          tables = parseInt(value) || 10;
-          render();
-        }
-    
-        function updateTakeaway(checked) {
-          takeaway = checked;
-          render();
-        }
-    
-        const debouncedMarkPaid = debounce(async (orderId, button) => {
-          button.disabled = true;
-          button.classList.add('btn-disabled');
-          button.textContent = 'Processing...';
-          showLoading(true);
-          const startTime = Date.now();
-          try {
-            const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ status: 'paid', paidTimestamp: Date.now() })
+        showLoading(false);
+        setTimeout(() => render(), 500); // Delayed re-render
+      }
+    }
+
+    async function deleteAllOrders() {
+      console.log('Attempting to delete all today\'s orders');
+      if (window.confirm('Are you sure you want to delete all today\'s orders?') &&
+          window.confirm('This action cannot be undone. Confirm deletion?')) {
+        showLoading(true);
+        try {
+          const response = await fetch(`${DATABASE_URL}orders.json`);
+          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          const data = await response.json();
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const tomorrow = new Date(today);
+          tomorrow.setDate(today.getDate() + 1);
+          const ordersToDelete = data ? Object.entries(data)
+            .filter(([_, order]) => {
+              const timestamp = order.status === 'paid' ? order.paidTimestamp : order.timestamp;
+              return timestamp >= today.getTime() && timestamp < tomorrow.getTime();
+            })
+            .map(([id]) => id) : [];
+
+          console.log('Orders to delete:', ordersToDelete);
+          for (const orderId of ordersToDelete) {
+            const delResponse = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' }
             });
-            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            console.log(`Order marked paid: ${orderId}, took ${Date.now() - startTime}ms`);
-            const orderEl = document.getElementById(`order-${orderId}`);
-            if (orderEl) {
-              orderEl.style.opacity = '0';
-              setTimeout(() => orderEl.remove(), 300);
-            }
-          } catch (error) {
-            console.error('Failed to mark paid:', error);
-            alert('Error marking order as paid. Check Firebase rules, endpoint, or network.');
-            button.disabled = false;
-            button.classList.remove('btn-disabled');
-            button.textContent = 'Mark Paid';
+            if (!delResponse.ok) throw new Error(`HTTP ${delResponse.status}: ${delResponse.statusText}`);
           }
-          showLoading(false);
-          setTimeout(render, 500);
-        }, 300);
-    
-        async function markPaid(orderId, button) {
-          queueAction(() => debouncedMarkPaid(orderId, button), 'markPaid');
+          console.log(`Deleted ${ordersToDelete.length} orders`);
+          render();
+        } catch (error) {
+          console.error('Failed to delete all orders:', error);
+          alert('Error deleting orders. Check Firebase rules, endpoint, or network.');
         }
-    
-        async function exportOrderHistory() {
-          showLoading(true);
-          let orders = [];
-          try {
-            const response = await fetch(`${DATABASE_URL}orders.json`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            const data = await response.json();
-            orders = data ? Object.entries(data)
-              .map(([id, order]) => ({ id, ...order }))
-              .filter(o => o.status === 'paid') : [];
-            console.log('Orders exported:', orders);
-          } catch (error) {
-            console.error('Failed to fetch orders for export:', error);
-            alert('Error exporting order history. Check Firebase rules, endpoint, or network.');
-          }
-    
-          let csvContent = 'Order ID,Table,Items,Total (INR),Paid Timestamp\n';
-          orders.forEach(order => {
-            const items = order.items.map(item => `${item.name} x${item.quantity} (₹${item.price}) ${item.isTakeaway ? '(Takeaway)' : '(Dine-in)'}`).join('; ');
-            const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const timestamp = new Date(order.paidTimestamp).toLocaleString();
-            csvContent += `"${order.id}","${order.table}","${items}",${total},"${timestamp}"\n`;
-          });
-    
-          const blob = new Blob([csvContent], { type: 'text/csv' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `crispydelight_order_history_${new Date().toISOString().split('T')[0]}.csv`;
-          a.click();
-          URL.revokeObjectURL(url);
-          showLoading(false);
+        showLoading(false);
+      }
+    }
+
+    function updateTables(value) {
+      tables = parseInt(value) || 10;
+      render();
+    }
+
+    function updateTakeaway(checked) {
+      takeaway = checked;
+      render();
+    }
+
+    const debouncedMarkPaid = debounce(async (orderId, button) => {
+      button.disabled = true;
+      button.classList.add('btn-disabled');
+      button.textContent = 'Processing...';
+      showLoading(true);
+      const startTime = Date.now();
+      try {
+        const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'paid', paidTimestamp: Date.now() })
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        console.log(`Order marked paid: ${orderId}, took ${Date.now() - startTime}ms`);
+        const orderEl = document.getElementById(`order-${orderId}`);
+        if (orderEl) {
+          orderEl.style.opacity = '0';
+          setTimeout(() => orderEl.remove(), 300);
         }
-    
-        // Initial load
-        loadConfig();
-      </script>
-    </body>
-    </html>
-    
+      } catch (error) {
+        console.error('Failed to mark paid:', error);
+        alert('Error marking order as paid. Check Firebase rules, endpoint, or network.');
+        button.disabled = false;
+        button.classList.remove('btn-disabled');
+        button.textContent = 'Mark Paid';
+      }
+      showLoading(false);
+      setTimeout(render, 500);
+    }, 300);
+
+    async function markPaid(orderId, button) {
+      queueAction(() => debouncedMarkPaid(orderId, button), 'markPaid');
+    }
+
+    async function exportOrderHistory() {
+      showLoading(true);
+      let orders = [];
+      try {
+        const response = await fetch(`${DATABASE_URL}orders.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const data = await response.json();
+        orders = data ? Object.entries(data)
+          .map(([id, order]) => ({ id, ...order }))
+          .filter(o => o.status === 'paid') : [];
+        console.log('Orders exported:', orders);
+      } catch (error) {
+        console.error('Failed to fetch orders for export:', error);
+        alert('Error exporting order history. Check Firebase rules, endpoint, or network.');
+      }
+
+      let csvContent = 'Order ID,Table,Items,Total (INR),Paid Timestamp\n';
+      orders.forEach(order => {
+        const items = order.items.map(item => `${item.name} x${item.quantity} (₹${item.price}) ${item.isTakeaway ? '(Takeaway)' : '(Dine-in)'}`).join('; ');
+        const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const timestamp = new Date(order.paidTimestamp).toLocaleString();
+        csvContent += `"${order.id}","${order.table}","${items}",${total},"${timestamp}"\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `crispydelight_order_history_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showLoading(false);
+    }
+
+    // Initial load
+    loadConfig();
+  </script>
+</body>
+</html>

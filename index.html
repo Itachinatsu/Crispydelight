@@ -116,134 +116,134 @@
     let tables = 10;
     let takeaway = true;
     let categories = [
-  'Burgers',
-  'Special Menu',
-  'Extras',
-  'Fried Chicken',
-  'Pizza',
-  'Non-Veg Combos',
-  'Sandwich',
-  'Fries',
-  'Momo',
-  'Fried Chicken Combos',
-  'Bread Omelette',
-  'Wraps',
-  'Desserts',
-  'Milkshakes',
-  'Ice Cream Sundaes',
-  'Mojitos'
-];
+      'Burgers',
+      'Special Menu',
+      'Extras',
+      'Fried Chicken',
+      'Pizza',
+      'Non-Veg Combos',
+      'Sandwich',
+      'Fries',
+      'Momo',
+      'Fried Chicken Combos',
+      'Bread Omelette',
+      'Wraps',
+      'Desserts',
+      'Milkshakes',
+      'Ice Cream Sundaes',
+      'Mojitos'
+    ];
 
-let menu = [
-  // Burgers
-  { id: 1, name: 'Classic Veg Burger', price: 59, category: 'Burgers', isFavorite: false },
-  { id: 2, name: 'Cheesy Veg Burger', price: 69, category: 'Burgers', isFavorite: false },
-  { id: 3, name: 'Paneer Burger', price: 89, category: 'Burgers', isFavorite: false },
-  { id: 4, name: 'Cheesy Paneer Burger', price: 99, category: 'Burgers', isFavorite: false },
-  { id: 5, name: 'Classic Chicken Burger', price: 89, category: 'Burgers', isFavorite: false },
-  { id: 6, name: 'Cheesy Chicken Burger', price: 99, category: 'Burgers', isFavorite: false },
-  { id: 7, name: 'Fried Chicken Burger', price: 119, category: 'Burgers', isFavorite: false },
-  { id: 8, name: 'Cheesy Fried Chicken Burger', price: 129, category: 'Burgers', isFavorite: false },
-  { id: 9, name: 'Super Tower Veg Burger', price: 129, category: 'Burgers', isFavorite: false },
-  { id: 10, name: 'Super Tower Chicken Burger', price: 139, category: 'Burgers', isFavorite: false },
+    let menu = [
+      // Burgers
+      { id: 1, name: 'Classic Veg Burger', price: 59, category: 'Burgers', isFavorite: false },
+      { id: 2, name: 'Cheesy Veg Burger', price: 69, category: 'Burgers', isFavorite: false },
+      { id: 3, name: 'Paneer Burger', price: 89, category: 'Burgers', isFavorite: false },
+      { id: 4, name: 'Cheesy Paneer Burger', price: 99, category: 'Burgers', isFavorite: false },
+      { id: 5, name: 'Classic Chicken Burger', price: 89, category: 'Burgers', isFavorite: false },
+      { id: 6, name: 'Cheesy Chicken Burger', price: 99, category: 'Burgers', isFavorite: false },
+      { id: 7, name: 'Fried Chicken Burger', price: 119, category: 'Burgers', isFavorite: false },
+      { id: 8, name: 'Cheesy Fried Chicken Burger', price: 129, category: 'Burgers', isFavorite: false },
+      { id: 9, name: 'Super Tower Veg Burger', price: 129, category: 'Burgers', isFavorite: false },
+      { id: 10, name: 'Super Tower Chicken Burger', price: 139, category: 'Burgers', isFavorite: false },
 
-  // Special Menu
-  { id: 11, name: 'No Bun Fried Chicken Burger', price: 199, category: 'Special Menu', isFavorite: false },
-  { id: 12, name: 'Reverse Fried Chicken Burger', price: 199, category: 'Special Menu', isFavorite: false },
-  { id: 13, name: 'Cheesy Overloaded Fries', price: 119, category: 'Special Menu', isFavorite: false },
+      // Special Menu
+      { id: 11, name: 'No Bun Fried Chicken Burger', price: 199, category: 'Special Menu', isFavorite: false },
+      { id: 12, name: 'Reverse Fried Chicken Burger', price: 199, category: 'Special Menu', isFavorite: false },
+      { id: 13, name: 'Cheesy Overloaded Fries', price: 119, category: 'Special Menu', isFavorite: false },
 
-  // Extras
-  { id: 14, name: 'Mayonnaise', price: 10, category: 'Extras', isFavorite: false },
-  { id: 15, name: 'Flavored Mayonnaise', price: 20, category: 'Extras', isFavorite: false },
+      // Extras
+      { id: 14, name: 'Mayonnaise', price: 10, category: 'Extras', isFavorite: false },
+      { id: 15, name: 'Flavored Mayonnaise', price: 20, category: 'Extras', isFavorite: false },
 
-  // Fried Chicken
-  { id: 16, name: 'Fried Chicken Leg', price: 79, category: 'Fried Chicken', isFavorite: false },
-  { id: 17, name: 'Chicken Nuggets', price: 89, category: 'Fried Chicken', isFavorite: false },
-  { id: 18, name: 'Fried Chicken Wings', price: 99, category: 'Fried Chicken', isFavorite: false },
-  { id: 19, name: 'Fried Chicken Lollipop', price: 99, category: 'Fried Chicken', isFavorite: false },
-  { id: 20, name: 'Chicken Mini Popcorn (10 pieces)', price: 99, category: 'Fried Chicken', isFavorite: false },
-  { id: 21, name: 'Chicken Popcorn (18 pieces)', price: 159, category: 'Fried Chicken', isFavorite: false },
-  { id: 22, name: 'Chicken Strips (3 pieces)', price: 149, category: 'Fried Chicken', isFavorite: false },
+      // Fried Chicken
+      { id: 16, name: 'Fried Chicken Leg', price: 79, category: 'Fried Chicken', isFavorite: false },
+      { id: 17, name: 'Chicken Nuggets', price: 89, category: 'Fried Chicken', isFavorite: false },
+      { id: 18, name: 'Fried Chicken Wings', price: 99, category: 'Fried Chicken', isFavorite: false },
+      { id: 19, name: 'Fried Chicken Lollipop', price: 99, category: 'Fried Chicken', isFavorite: false },
+      { id: 20, name: 'Chicken Mini Popcorn (10 pieces)', price: 99, category: 'Fried Chicken', isFavorite: false },
+      { id: 21, name: 'Chicken Popcorn (18 pieces)', price: 159, category: 'Fried Chicken', isFavorite: false },
+      { id: 22, name: 'Chicken Strips (3 pieces)', price: 149, category: 'Fried Chicken', isFavorite: false },
 
-  // Pizza
-  { id: 23, name: 'Veg Pizza', price: 69, category: 'Pizza', isFavorite: false },
-  { id: 24, name: 'Corn Pizza', price: 79, category: 'Pizza', isFavorite: false },
-  { id: 25, name: 'Paneer Pizza', price: 89, category: 'Pizza', isFavorite: false },
-  { id: 26, name: 'Cheese Pizza', price: 99, category: 'Pizza', isFavorite: false },
-  { id: 27, name: 'Fried Chicken Pizza', price: 129, category: 'Pizza', isFavorite: false },
-  { id: 28, name: 'Hot & Spicy Chicken Pizza', price: 149, category: 'Pizza', isFavorite: false },
-  { id: 29, name: 'Delight Spl Veg Pizza (9")', price: 139, category: 'Pizza', isFavorite: false },
-  { id: 30, name: 'Delight Spl Chicken Pizza (9")', price: 159, category: 'Pizza', isFavorite: false },
-  { id: 31, name: 'Cheesy Overloaded Pizza (9")', price: 199, category: 'Pizza', isFavorite: false },
+      // Pizza
+      { id: 23, name: 'Veg Pizza', price: 69, category: 'Pizza', isFavorite: false },
+      { id: 24, name: 'Corn Pizza', price: 79, category: 'Pizza', isFavorite: false },
+      { id: 25, name: 'Paneer Pizza', price: 89, category: 'Pizza', isFavorite: false },
+      { id: 26, name: 'Cheese Pizza', price: 99, category: 'Pizza', isFavorite: false },
+      { id: 27, name: 'Fried Chicken Pizza', price: 129, category: 'Pizza', isFavorite: false },
+      { id: 28, name: 'Hot & Spicy Chicken Pizza', price: 149, category: 'Pizza', isFavorite: false },
+      { id: 29, name: 'Delight Spl Veg Pizza (9")', price: 139, category: 'Pizza', isFavorite: false },
+      { id: 30, name: 'Delight Spl Chicken Pizza (9")', price: 159, category: 'Pizza', isFavorite: false },
+      { id: 31, name: 'Cheesy Overloaded Pizza (9")', price: 199, category: 'Pizza', isFavorite: false },
 
-  // Non-Veg Combos
-  { id: 32, name: 'Chicken OER, French Fries, Soft Drink', price: 129, category: 'Non-Veg Combos', isFavorite: false },
-  { id: 33, name: 'Hot & Spicy Chicken Pizza, Blue Sky Mojito, French Fries', price: 249, category: 'Non-Veg Combos', isFavorite: false },
-  { id: 34, name: 'Delight Spl Chicken Pizza, Fried Chicken Momo, Peri Peri Fries, Mojito, Fried Lego (1 pc), Lollipop (1 pc)', price: 299, category: 'Non-Veg Combos', isFavorite: false }, // Price assumed as not provided
+      // Non-Veg Combos
+      { id: 32, name: 'Chicken OER, French Fries, Soft Drink', price: 129, category: 'Non-Veg Combos', isFavorite: false },
+      { id: 33, name: 'Hot & Spicy Chicken Pizza, Blue Sky Mojito, French Fries', price: 249, category: 'Non-Veg Combos', isFavorite: false },
+      { id: 34, name: 'Delight Spl Chicken Pizza, Fried Chicken Momo, Peri Peri Fries, Mojito, Fried Lego (1 pc), Lollipop (1 pc)', price: 299, category: 'Non-Veg Combos', isFavorite: false }, // Price assumed as not provided
 
-  // Sandwich
-  { id: 35, name: 'Veg Sandwich', price: 69, category: 'Sandwich', isFavorite: false },
-  { id: 36, name: 'Cheesy Veg Sandwich', price: 79, category: 'Sandwich', isFavorite: false },
-  { id: 37, name: 'Corn Sandwich', price: 89, category: 'Sandwich', isFavorite: false },
-  { id: 38, name: 'Cheesy Corn Sandwich', price: 99, category: 'Sandwich', isFavorite: false },
-  { id: 39, name: 'Paneer Sandwich', price: 99, category: 'Sandwich', isFavorite: false },
-  { id: 40, name: 'Cheesy Paneer Sandwich', price: 199, category: 'Sandwich', isFavorite: false },
-  { id: 41, name: 'Fried Chicken Sandwich', price: 129, category: 'Sandwich', isFavorite: false },
-  { id: 42, name: 'Cheesy Chicken Sandwich', price: 139, category: 'Sandwich', isFavorite: false },
+      // Sandwich
+      { id: 35, name: 'Veg Sandwich', price: 69, category: 'Sandwich', isFavorite: false },
+      { id: 36, name: 'Cheesy Veg Sandwich', price: 79, category: 'Sandwich', isFavorite: false },
+      { id: 37, name: 'Corn Sandwich', price: 89, category: 'Sandwich', isFavorite: false },
+      { id: 38, name: 'Cheesy Corn Sandwich', price: 99, category: 'Sandwich', isFavorite: false },
+      { id: 39, name: 'Paneer Sandwich', price: 99, category: 'Sandwich', isFavorite: false },
+      { id: 40, name: 'Cheesy Paneer Sandwich', price: 199, category: 'Sandwich', isFavorite: false },
+      { id: 41, name: 'Fried Chicken Sandwich', price: 129, category: 'Sandwich', isFavorite: false },
+      { id: 42, name: 'Cheesy Chicken Sandwich', price: 139, category: 'Sandwich', isFavorite: false },
 
-  // Fries
-  { id: 43, name: 'Normal Fries', price: 59, category: 'Fries', isFavorite: false },
-  { id: 44, name: 'Peri-Peri Fries', price: 69, category: 'Fries', isFavorite: false },
-  { id: 45, name: 'Peri-Peri Fries with Mayonnaise', price: 89, category: 'Fries', isFavorite: false },
+      // Fries
+      { id: 43, name: 'Normal Fries', price: 59, category: 'Fries', isFavorite: false },
+      { id: 44, name: 'Peri-Peri Fries', price: 69, category: 'Fries', isFavorite: false },
+      { id: 45, name: 'Peri-Peri Fries with Mayonnaise', price: 89, category: 'Fries', isFavorite: false },
 
-  // Momo
-  { id: 46, name: 'Mixed Veg Fried Momo', price: 89, category: 'Momo', isFavorite: false },
-  { id: 47, name: 'Paneer Fried Momo', price: 99, category: 'Momo', isFavorite: false },
-  { id: 48, name: 'Chicken Fried Momo', price: 99, category: 'Momo', isFavorite: false },
+      // Momo
+      { id: 46, name: 'Mixed Veg Fried Momo', price: 89, category: 'Momo', isFavorite: false },
+      { id: 47, name: 'Paneer Fried Momo', price: 99, category: 'Momo', isFavorite: false },
+      { id: 48, name: 'Chicken Fried Momo', price: 99, category: 'Momo', isFavorite: false },
 
-  // Fried Chicken Combos
-  { id: 49, name: 'Fried Leg (3 pcs)', price: 209, category: 'Fried Chicken Combos', isFavorite: false },
-  { id: 50, name: '10 pc Fried Chicken', price: 249, category: 'Fried Chicken Combos', isFavorite: false },
-  { id: 51, name: 'Bucket Chicken', price: 349, category: 'Fried Chicken Combos', isFavorite: false },
-  { id: 52, name: 'Mixed Bucket Chicken (3 leg, 4 wings, 3 lollipop, 3 pc popcorn)', price: 425, category: 'Fried Chicken Combos', isFavorite: false },
-  { id: 53, name: '20 pc Popcorn + Peri Peri Fries', price: 249, category: 'Fried Chicken Combos', isFavorite: false },
+      // Fried Chicken Combos
+      { id: 49, name: 'Fried Leg (3 pcs)', price: 209, category: 'Fried Chicken Combos', isFavorite: false },
+      { id: 50, name: '10 pc Fried Chicken', price: 249, category: 'Fried Chicken Combos', isFavorite: false },
+      { id: 51, name: 'Bucket Chicken', price: 349, category: 'Fried Chicken Combos', isFavorite: false },
+      { id: 52, name: 'Mixed Bucket Chicken (3 leg, 4 wings, 3 lollipop, 3 pc popcorn)', price: 425, category: 'Fried Chicken Combos', isFavorite: false },
+      { id: 53, name: '20 pc Popcorn + Peri Peri Fries', price: 249, category: 'Fried Chicken Combos', isFavorite: false },
 
-  // Bread Omelette
-  { id: 54, name: 'Bread Omelette', price: 69, category: 'Bread Omelette', isFavorite: false },
-  { id: 55, name: 'Double Bread Omelette', price: 79, category: 'Bread Omelette', isFavorite: false },
-  { id: 56, name: 'Cheesy Double Bread Omelette', price: 99, category: 'Bread Omelette', isFavorite: false },
+      // Bread Omelette
+      { id: 54, name: 'Bread Omelette', price: 69, category: 'Bread Omelette', isFavorite: false },
+      { id: 55, name: 'Double Bread Omelette', price: 79, category: 'Bread Omelette', isFavorite: false },
+      { id: 56, name: 'Cheesy Double Bread Omelette', price: 99, category: 'Bread Omelette', isFavorite: false },
 
-  // Wraps
-  { id: 57, name: 'Delight Spl Veg Wrap', price: 99, category: 'Wraps', isFavorite: false },
-  { id: 58, name: 'Delight Spl Chicken Wrap', price: 119, category: 'Wraps', isFavorite: false },
-  { id: 59, name: 'Delight Spl Fried Chicken Wrap', price: 139, category: 'Wraps', isFavorite: false },
+      // Wraps
+      { id: 57, name: 'Delight Spl Veg Wrap', price: 99, category: 'Wraps', isFavorite: false },
+      { id: 58, name: 'Delight Spl Chicken Wrap', price: 119, category: 'Wraps', isFavorite: false },
+      { id: 59, name: 'Delight Spl Fried Chicken Wrap', price: 139, category: 'Wraps', isFavorite: false },
 
-  // Desserts
-  { id: 60, name: 'Brownie with Ice Cream', price: 99, category: 'Desserts', isFavorite: false },
-  { id: 61, name: 'Death by Chocolate', price: 119, category: 'Desserts', isFavorite: false },
+      // Desserts
+      { id: 60, name: 'Brownie with Ice Cream', price: 99, category: 'Desserts', isFavorite: false },
+      { id: 61, name: 'Death by Chocolate', price: 119, category: 'Desserts', isFavorite: false },
 
-  // Milkshakes
-  { id: 62, name: 'Rose Milk', price: 39, category: 'Milkshakes', isFavorite: false },
-  { id: 63, name: 'Chocolate Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
-  { id: 64, name: 'Oreo Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
-  { id: 65, name: 'Vanilla Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
-  { id: 66, name: 'Mango Milkshake', price: 79, category: 'Milkshakes', isFavorite: false },
-  { id: 67, name: 'KitKat Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
-  { id: 68, name: 'Strawberry Milkshake', price: 79, category: 'Milkshakes', isFavorite: false },
+      // Milkshakes
+      { id: 62, name: 'Rose Milk', price: 39, category: 'Milkshakes', isFavorite: false },
+      { id: 63, name: 'Chocolate Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
+      { id: 64, name: 'Oreo Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
+      { id: 65, name: 'Vanilla Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
+      { id: 66, name: 'Mango Milkshake', price: 79, category: 'Milkshakes', isFavorite: false },
+      { id: 67, name: 'KitKat Milkshake', price: 89, category: 'Milkshakes', isFavorite: false },
+      { id: 68, name: 'Strawberry Milkshake', price: 79, category: 'Milkshakes', isFavorite: false },
 
-  // Ice Cream Sundaes
-  { id: 69, name: 'Vanilla Sundae', price: 69, category: 'Ice Cream Sundaes', isFavorite: false },
-  { id: 70, name: 'Chocolate Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
-  { id: 71, name: 'Butterscotch Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
-  { id: 72, name: 'Strawberry Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
-  { id: 73, name: 'Cookies & Cream Sundae', price: 99, category: 'Ice Cream Sundaes', isFavorite: false },
-  { id: 74, name: 'Italian Chocolate Sundae', price: 99, category: 'Ice Cream Sundaes', isFavorite: false },
+      // Ice Cream Sundaes
+      { id: 69, name: 'Vanilla Sundae', price: 69, category: 'Ice Cream Sundaes', isFavorite: false },
+      { id: 70, name: 'Chocolate Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
+      { id: 71, name: 'Butterscotch Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
+      { id: 72, name: 'Strawberry Sundae', price: 79, category: 'Ice Cream Sundaes', isFavorite: false },
+      { id: 73, name: 'Cookies & Cream Sundae', price: 99, category: 'Ice Cream Sundaes', isFavorite: false },
+      { id: 74, name: 'Italian Chocolate Sundae', price: 99, category: 'Ice Cream Sundaes', isFavorite: false },
 
-  // Mojitos
-  { id: 75, name: 'Blue Sky Mojito', price: 79, category: 'Mojitos', isFavorite: false },
-  { id: 76, name: 'Mint Lime Mojito', price: 79, category: 'Mojitos', isFavorite: false },
-  { id: 77, name: 'Virgin Mojito', price: 79, category: 'Mojitos', isFavorite: false }
-];
+      // Mojitos
+      { id: 75, name: 'Blue Sky Mojito', price: 79, category: 'Mojitos', isFavorite: false },
+      { id: 76, name: 'Mint Lime Mojito', price: 79, category: 'Mojitos', isFavorite: false },
+      { id: 77, name: 'Virgin Mojito', price: 79, category: 'Mojitos', isFavorite: false }
+    ];
     let currentOrder = {};
     let pollTimer = null;
     let lastOrdersState = {};
@@ -492,13 +492,11 @@ let menu = [
     }
 
     function selectTable(table) {
-      queueAction(() => {
-        selectedTable = table;
-        selectedOrderId = null;
-        currentOrder = {};
-        console.log('Table selected:', selectedTable);
-        render();
-      }, 'selectTable');
+      selectedTable = table;
+      selectedOrderId = null;
+      currentOrder = {};
+      console.log('Table selected:', selectedTable);
+      render();
     }
 
     async function editOrder(orderId, table) {
@@ -577,7 +575,7 @@ let menu = [
             const dineinOrder = currentOrder[dineinKey] || { quantity: 0, isTakeaway: false };
             const takeawayOrder = currentOrder[takeawayKey] || { quantity: 0, isTakeaway: true };
             html += `
-              <div class="order-item">
+              <div class="order  order-item">
                 <span>${item.name} (₹${item.price}) - Dine-in</span>
                 <button class="btn-red" onclick="updateOrder(${item.id}, -1, false)">-</button>
                 <span>${dineinOrder.quantity}</span>

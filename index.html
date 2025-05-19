@@ -300,45 +300,74 @@
       }
     }
 
-    function render() {
-      const app = document.getElementById('app');
-      if (!app) {
-        console.error('App container not found');
-        return;
-      }
-      app.innerHTML = `
-        <img src="https://via.placeholder.com/100x50?text=Crispydelight" alt="Crispydelight Logo" class="logo">
-      `;
+    // function render() {
+    //   const app = document.getElementById('app');
+    //   if (!app) {
+    //     console.error('App container not found');
+    //     return;
+    //   }
+    //   app.innerHTML = `
+    //     <img src="https://via.placeholder.com/100x50?text=Crispydelight" alt="Crispydelight Logo" class="logo">
+    //   `;
 
-      if (currentSection === 'home') {
-        app.innerHTML += `
-          <h1>Crispydelight Dashboard</h1>
-          <button class="btn-blue" onclick="navigate('order')">Order Section</button>
-          <button class="btn-green" onclick="navigate('kitchen')">Kitchen Section</button>
-          <button class="btn-purple" onclick="navigate('admin')">Admin Section</button>
-          <button class="btn-blue" onclick="navigate('history')">Today's History</button>
-        `;
-      } else if (currentSection === 'order' && !selectedTable) {
-        renderOrderSection();
-      } else if (currentSection === 'order' && selectedTable) {
-        renderMenuSection();
-      } else if (currentSection === 'kitchen') {
-        renderKitchenSection();
-      } else if (currentSection === 'admin') {
-        renderAdminSection();
-      } else if (currentSection === 'history') {
-        renderHistorySection();
-      }
-      showLoading(false); // Ensure loading is cleared
-      console.log('Rendered section:', currentSection, 'Selected table:', selectedTable, 'Selected order:', selectedOrderId);
+    //   if (currentSection === 'home') {
+    //     app.innerHTML += `
+    //       <h1>Crispydelight Dashboard</h1>
+    //       <button class="btn-blue" onclick="navigate('order')">Order Section</button>
+    //       <button class="btn-green" onclick="navigate('kitchen')">Kitchen Section</button>
+    //       <button class="btn-purple" onclick="navigate('admin')">Admin Section</button>
+    //       <button class="btn-blue" onclick="navigate('history')">Today's History</button>
+    //     `;
+    //   } else if (currentSection === 'order' && !selectedTable) {
+    //     renderOrderSection();
+    //   } else if (currentSection === 'order' && selectedTable) {
+    //     renderMenuSection();
+    //   } else if (currentSection === 'kitchen') {
+    //     renderKitchenSection();
+    //   } else if (currentSection === 'admin') {
+    //     renderAdminSection();
+    //   } else if (currentSection === 'history') {
+    //     renderHistorySection();
+    //   }
+    //   showLoading(false); // Ensure loading is cleared
+    //   console.log('Rendered section:', currentSection, 'Selected table:', selectedTable, 'Selected order:', selectedOrderId);
+    // }
+
+    function showLoading(show) {
+      document.getElementById('loading').classList.toggle('active', show);
+    }
+
+    function render() {
+      showLoading(false);
+      const app = document.getElementById('app');
+      if (currentSection === 'home') return renderHome(app);
+      if (currentSection === 'order' && selectedTable === null) return renderOrderTables(app);
+      if (currentSection === 'order' && selectedTable !== null) return renderCategories(app);
+      // other sections remain unchanged
+    }
+
+    function renderHome(app) {
+      app.innerHTML = '<img src="https://via.placeholder.com/100x50?text=Crispydelight" class="logo" alt="Crispydelight Logo">' +
+        '<h1>Crispydelight Dashboard</h1>' +
+        '<button class="btn-blue" onclick="navigate(\'order\')">Order Section</button>' +
+        '<button class="btn-green" onclick="navigate(\'kitchen\')">Kitchen Section</button>' +
+        '<button class="btn-purple" onclick="navigate(\'admin\')">Admin Section</button>' +
+        '<button class="btn-blue" onclick="navigate(\'history\')">Today\'s History</button>';
     }
 
     function navigate(section) {
-      if (pollTimer) {
-        clearTimeout(pollTimer);
-        pollTimer = null;
-        console.log('Polling stopped');
-      }
+      currentSection = section;
+      selectedTable = null;
+      selectedOrderId = null;
+      render();
+    }
+
+    // function navigate(section) {
+    //   if (pollTimer) {
+    //     clearTimeout(pollTimer);
+    //     pollTimer = null;
+    //     console.log('Polling stopped');
+    //   }
       currentSection = section;
       selectedTable = null;
       selectedOrderId = null;
@@ -348,6 +377,70 @@
       render();
       startPolling();
     }
+
+    unction renderOrderTables(app) {
+      let html = '<h2>Select Table</h2><div class="table-grid">';
+      for (let i = 1; i <= tables; i++) html += `<button class="btn-blue" onclick="selectTable(${i})">Table ${i}</button>`;
+      html += '</div>';
+      app.innerHTML = html;
+    }
+
+    function selectTable(num) {
+      selectedTable = num;
+      orderData[selectedTable] = orderData[selectedTable] || {};
+      render();
+    }
+
+    function renderCategories(app) {
+      let html = `<button class="btn-gray" onclick="selectTable(null)">← Back to Tables</button><h2>Table ${selectedTable} Order</h2><div class="category-group">`;
+      categories.forEach(cat => html += `<button class="btn-blue" onclick="selectCategory('${cat}')">${cat}</button>`);
+      html += '</div><div id="item-list"></div><div class="total-sum" id="total">Total: ₹0</div>';
+      app.innerHTML = html;
+    }
+
+    function selectCategory(cat) {
+      const items = menu.filter(i => i.category === cat);
+      const list = document.getElementById('item-list');
+      let html = '';
+      items.forEach(item => {
+        const data = orderData[selectedTable][item.id] || { qty: 0, takeaway: false };
+        html += '<div class="item-row">';
+        html += '<div class="item-info">';
+        html += `<input type="checkbox" class="takeaway-checkbox" ${data.takeaway ? 'checked' : ''} onchange="toggleTakeaway(${item.id}, this.checked)">`;
+        html += `${item.name} (₹${item.price})`;
+        html += '</div><div class="controls">';
+        html += `<button onclick="changeQty(${item.id}, -1)">-</button><span id="qty-${item.id}">${data.qty}</span><button onclick="changeQty(${item.id}, 1)">+</button>`;
+        html += '</div></div>';
+      });
+      list.innerHTML = html;
+      updateTotal();
+    }
+
+    function toggleTakeaway(id, val) {
+      orderData[selectedTable][id] = orderData[selectedTable][id] || { qty: 0, takeaway: false };
+      orderData[selectedTable][id].takeaway = val;
+    }
+
+    function changeQty(id, delta) {
+      const data = orderData[selectedTable][id] || { qty: 0, takeaway: false };
+      data.qty = Math.max(0, data.qty + delta);
+      orderData[selectedTable][id] = data;
+      document.getElementById(`qty-${id}`).textContent = data.qty;
+      updateTotal();
+    }
+
+    function updateTotal() {
+      let sum = 0;
+      Object.entries(orderData[selectedTable] || {}).forEach(([id, d]) => {
+        const price = menu.find(i => i.id == id).price;
+        sum += d.qty * price;
+      });
+      document.getElementById('total').textContent = `Total: ₹${sum}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      render();
+    });
 
     function startPolling() {
       if (pollTimer) clearTimeout(pollTimer);

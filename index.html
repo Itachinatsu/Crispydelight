@@ -328,7 +328,6 @@
           } else {
             console.warn('Invalid or missing config.menu, using local menu');
           }
-          // Categories are now frozen, so we can't modify them
           if (Array.isArray(config.categories) && config.categories.length > 0) {
             console.warn('Firebase config.categories ignored as local categories are frozen:', config.categories);
           }
@@ -620,7 +619,9 @@
      * @returns {string} HTML string
      */
     function renderCategoryGroup(category, items) {
-      let html = `<div class="category-group"><h3>${category}</h3>`;
+      // Generate a safe ID by replacing spaces with hyphens and converting to lowercase
+      const categoryId = category.toLowerCase().replace(/\s+/g, '-');
+      let html = `<div class="category-group" id="category-${categoryId}"><h3>${category}</h3>`;
       items.forEach(item => {
         const key = `${item.id}`;
         const order = state.currentOrder[key] || { quantity: 0, isTakeaway: false };
@@ -678,7 +679,7 @@
       let html = `
         <div class="sticky-header">
           <h2>${state.selectedTable} ${state.selectedOrderId ? 'Edit Order' : 'Order'}</h2>
-          <button class="btn-gray" onclick="selectTable(null)">Back</button>
+          <button class="btn-gray" onclick="navigate('order')">Back</button>
           <p class="total-sum">Total: ₹${total}</p>
           <select onchange="jumpToCategory(this.value)">
             <option value="">Jump to Category</option>
@@ -717,29 +718,54 @@
         </div>
       `;
 
-      requestAnimationFrame(() => {
-        domCache.app.innerHTML = html;
-        console.log('Menu section rendered:', {
-          table: state.selectedTable,
-          total,
-          page: state.currentPage,
-          displayedCategories: paginatedCategories
-        });
+      domCache.app.innerHTML = html;
+      console.log('Menu section rendered:', {
+        table: state.selectedTable,
+        total,
+        page: state.currentPage,
+        displayedCategories: paginatedCategories
       });
     }
 
     /**
-     * Jumps to a category by adjusting the page
+     * Jumps to a category by adjusting the page and scrolling to it
      * @param {string} category - Category to jump to
      */
     function jumpToCategory(category) {
-      if (!category) return;
+      if (!category) {
+        console.log('jumpToCategory: No category selected');
+        return;
+      }
       const index = categories.indexOf(category);
       if (index >= 0) {
-        const targetPage = Math.floor(index / state.itemsPerPage) + 1;
-        console.log('jumpToCategory:', { category, index, targetPage });
+        const itemsPerPage = state.itemsPerPage;
+        const targetPage = Math.floor(index / itemsPerPage) + 1;
+        console.log('jumpToCategory:', {
+          category,
+          index,
+          itemsPerPage: state.itemsPerPage,
+          targetPage,
+          previousPage: state.currentPage,
+          expectedCategories: categories.slice((targetPage - 1) * itemsPerPage, targetPage * itemsPerPage)
+        });
+
+        // Update state.currentPage
         state.currentPage = targetPage;
+        console.log('jumpToCategory: Updated state.currentPage to', state.currentPage);
+
+        // Render the page
         render();
+        console.log('jumpToCategory: Render completed, currentPage=', state.currentPage);
+
+        // Scroll to the specific category
+        const categoryId = category.toLowerCase().replace(/\s+/g, '-');
+        const categoryElement = document.getElementById(`category-${categoryId}`);
+        if (categoryElement) {
+          categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          console.log(`jumpToCategory: Scrolled to category-${categoryId}`);
+        } else {
+          console.warn(`jumpToCategory: Category element not found for category-${categoryId}`);
+        }
       } else {
         console.warn('Category not found:', category);
       }

@@ -14,7 +14,7 @@
       background-color: #f0f0f0;
       font-size: 16px;
       -webkit-tap-highlight-color: transparent;
-      overscroll-behavior: none; /* Prevent pull-to-refresh on Android */
+      overscroll-behavior: none;
     }
     .container {
       max-width: 360px;
@@ -119,6 +119,20 @@
     .pagination button {
       min-width: 44px;
     }
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      background-color: #f0f0f0;
+      z-index: 10;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .item-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -128,12 +142,23 @@
   </div>
   <script>
     const DATABASE_URL = 'https://crispydelight-7ec1d-default-rtdb.firebaseio.com/';
-    let currentSection = 'home';
-    let selectedTable = null;
-    let selectedOrderId = null;
-    let tables = 10;
-    let takeaway = true;
-    let menu = [
+    const domCache = { app: document.getElementById('app'), loading: document.getElementById('loading') };
+    const state = {
+      currentSection: 'home',
+      selectedTable: null,
+      selectedOrderId: null,
+      tables: 10,
+      takeaway: true,
+      currentOrder: {},
+      currentPage: 1,
+      itemsPerPage: 5, // Categories per page
+      tableTakeawayStates: {},
+      lastOrdersState: {},
+      actionQueue: [],
+      isFetching: false,
+      pollTimer: null
+    };
+    const menu = [
       { id: 1, name: 'Classic Veg Burger', price: 59, category: 'Burgers', isFavorite: false },
       { id: 2, name: 'Cheesy Veg Burger', price: 69, category: 'Burgers', isFavorite: false },
       { id: 3, name: 'Paneer Burger', price: 89, category: 'Burgers', isFavorite: false },
@@ -212,20 +237,18 @@
       { id: 76, name: 'Mint Lime Mojito', price: 79, category: 'Mojitos', isFavorite: false },
       { id: 77, name: 'Virgin Mojito', price: 79, category: 'Mojitos', isFavorite: false }
     ];
-    let categories = [
+    const categories = [
       'Burgers', 'Special Menu', 'Extras', 'Fried Chicken', 'Pizza', 'Non-Veg Combos',
       'Sandwich', 'Fries', 'Momo', 'Fried Chicken Combos', 'Bread Omelette', 'Wraps',
       'Desserts', 'Milkshakes', 'Ice Cream Sundaes', 'Mojitos'
     ];
-    let currentOrder = {};
-    let pollTimer = null;
-    let lastOrdersState = {};
-    let actionQueue = [];
-    let isFetching = false;
-    let currentPage = 1;
-    const itemsPerPage = 10;
 
-    // Debounce utility
+    /**
+     * Debounces a function to limit execution rate
+     * @param {Function} func - Function to debounce
+     * @param {number} wait - Wait time in milliseconds
+     * @returns {Function} Debounced function
+     */
     function debounce(func, wait) {
       let timeout;
       return function (...args) {
@@ -234,150 +257,202 @@
       };
     }
 
-    // Queue actions during fetch
+    /**
+     * Queues an action to run after fetching completes
+     * @param {Function} action - Action to queue
+     * @param {string} type - Type of action for logging
+     */
     function queueAction(action, type) {
-      if (isFetching) {
-        actionQueue.push({ action, type });
+      if (state.isFetching) {
+        state.actionQueue.push({ action, type });
         console.log(`Action queued: ${type}`);
       } else {
         action();
       }
     }
 
-    // Process queued actions
+    /**
+     * Processes queued actions
+     */
     function processQueue() {
-      while (actionQueue.length > 0) {
-        const { action, type } = actionQueue.shift();
+      while (state.actionQueue.length > 0) {
+        const { action, type } = state.actionQueue.shift();
         console.log(`Processing queued action: ${type}`);
         action();
       }
     }
 
-    // Load config from Firebase on startup
+    /**
+     * Performs a fetch with retry logic
+     * @param {string} url - URL to fetch
+     * @param {Object} options - Fetch options
+     * @param {number} retries - Number of retries
+     * @returns {Promise<Response>} Fetch response
+     */
+    async function fetchWithRetry(url, options = {}, retries = 3) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          return response;
+        } catch (error) {
+          if (i === retries - 1) throw error;
+          console.warn(`Fetch failed, retrying (${i + 1}/${retries}): ${url}`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        }
+      }
+    }
+
+    /**
+     * Loads configuration from Firebase
+     */
     async function loadConfig() {
       showLoading(true);
       try {
-        const response = await fetch(`${DATABASE_URL}config.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const response = await fetchWithRetry(`${DATABASE_URL}config.json`);
         const config = await response.json();
         if (config) {
-          tables = config.tables || tables;
-          takeaway = config.takeaway !== undefined ? config.takeaway : takeaway;
-          menu = config.menu || menu;
-          categories = config.categories || categories;
+          state.tables = config.tables || state.tables;
+          state.takeaway = config.takeaway !== undefined ? config.takeaway : state.takeaway;
+          // Preserve local menu/categories unless Firebase overrides
+          if (config.menu) menu.length = 0; menu.push(...config.menu);
+          if (config.categories) categories.length = 0; categories.push(...config.categories);
         }
-        console.log('Config loaded:', { tables, takeaway, menu, categories });
+        console.log('Config loaded:', { tables: state.tables, takeaway: state.takeaway, menu, categories });
       } catch (error) {
         console.error('Failed to load config:', error);
-        alert('Error loading configuration. Check Firebase rules, endpoint, or network.');
+        alert(`Error loading configuration: ${error.message}. Check Firebase rules, endpoint, or network.`);
       }
       showLoading(false);
       render();
     }
 
-    // Save config to Firebase
+    /**
+     * Saves configuration to Firebase
+     */
     async function saveConfig() {
       showLoading(true);
       try {
-        const response = await fetch(`${DATABASE_URL}config.json`, {
+        const response = await fetchWithRetry(`${DATABASE_URL}config.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tables, takeaway, menu, categories })
+          body: JSON.stringify({ tables: state.tables, takeaway: state.takeaway, menu, categories })
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        console.log('Config saved:', { tables, takeaway, menu, categories });
+        console.log('Config saved:', { tables: state.tables, takeaway: state.takeaway, menu, categories });
       } catch (error) {
         console.error('Failed to save config:', error);
-        alert('Error saving configuration. Check Firebase rules or network.');
+        alert(`Error saving configuration: ${error.message}. Check Firebase rules or network.`);
       }
       showLoading(false);
     }
 
+    /**
+     * Toggles loading indicator
+     * @param {boolean} show - Whether to show the loading indicator
+     */
     function showLoading(show) {
-      const loadingEl = document.getElementById('loading');
-      if (loadingEl) {
-        loadingEl.classList.toggle('active', show);
+      if (domCache.loading) {
+        domCache.loading.classList.toggle('active', show);
       } else {
         console.warn('Loading element not found');
       }
     }
 
+    /**
+     * Renders the current section
+     */
     function render() {
-      const app = document.getElementById('app');
-      if (!app) {
+      if (!domCache.app) {
         console.error('App container not found');
         return;
       }
-      app.innerHTML = `
+      domCache.app.innerHTML = `
         <img src="https://via.placeholder.com/100x50?text=Crispydelight" alt="Crispydelight Logo" class="logo">
       `;
 
-      if (currentSection === 'home') {
-        app.innerHTML += `
-          <h1>Crispydelight Dashboard</h1>
-          <button class="btn-blue" onclick="navigate('order')">Order Section</button>
-          <button class="btn-green" onclick="navigate('kitchen')">Kitchen Section</button>
-          <button class="btn-purple" onclick="navigate('admin')">Admin Section</button>
-          <button class="btn-blue" onclick="navigate('history')">Today's History</button>
-        `;
-      } else if (currentSection === 'order' && !selectedTable) {
-        renderOrderSection();
-      } else if (currentSection === 'order' && selectedTable) {
-        renderMenuSection();
-      } else if (currentSection === 'kitchen') {
-        renderKitchenSection();
-      } else if (currentSection === 'admin') {
-        renderAdminSection();
-      } else if (currentSection === 'history') {
-        renderHistorySection();
+      switch (state.currentSection) {
+        case 'home':
+          domCache.app.innerHTML += `
+            <h1>Crispydelight Dashboard</h1>
+            <button class="btn-blue" onclick="navigate('order')">Order Section</button>
+            <button class="btn-green" onclick="navigate('kitchen')">Kitchen Section</button>
+            <button class="btn-purple" onclick="navigate('admin')">Admin Section</button>
+            <button class="btn-blue" onclick="navigate('history')">Today's History</button>
+          `;
+          break;
+        case 'order':
+          if (state.selectedTable) {
+            renderMenuSection();
+          } else {
+            renderOrderSection();
+          }
+          break;
+        case 'kitchen':
+          renderKitchenSection();
+          break;
+        case 'admin':
+          renderAdminSection();
+          break;
+        case 'history':
+          renderHistorySection();
+          break;
       }
       showLoading(false);
-      console.log('Rendered section:', currentSection, 'Selected table:', selectedTable, 'Selected order:', selectedOrderId);
+      console.log('Rendered section:', state.currentSection, 'Selected table:', state.selectedTable, 'Selected order:', state.selectedOrderId);
     }
 
+    /**
+     * Navigates to a new section
+     * @param {string} section - Section to navigate to
+     */
     function navigate(section) {
-      if (pollTimer) {
-        clearTimeout(pollTimer);
-        pollTimer = null;
+      if (state.pollTimer) {
+        clearTimeout(state.pollTimer);
+        state.pollTimer = null;
         console.log('Polling stopped');
       }
-      currentSection = section;
-      selectedTable = null;
-      selectedOrderId = null;
-      currentOrder = {};
-      lastOrdersState = {};
-      currentPage = 1;
+      state.currentSection = section;
+      state.selectedTable = null;
+      state.selectedOrderId = null;
+      state.currentOrder = {};
+      state.currentPage = 1;
+      state.lastOrdersState = {};
       showLoading(false);
       render();
       startPolling();
     }
 
+    /**
+     * Starts polling for updates
+     */
     function startPolling() {
-      if (pollTimer) clearTimeout(pollTimer);
-      if (currentSection === 'order' && !selectedTable) {
+      if (state.pollTimer) clearTimeout(state.pollTimer);
+      if (state.currentSection === 'order' && !state.selectedTable) {
         renderOrderSection();
-        pollTimer = setTimeout(startPolling, 15000);
+        state.pollTimer = setTimeout(startPolling, 20000); // 20s for battery optimization
         console.log('Polling started for order (table selection)');
-      } else if (currentSection === 'kitchen') {
+      } else if (state.currentSection === 'kitchen') {
         renderKitchenSection();
-        pollTimer = setTimeout(startPolling, 15000);
+        state.pollTimer = setTimeout(startPolling, 20000);
         console.log('Polling started for kitchen');
       } else {
-        console.log('Polling skipped: section=', currentSection, 'selectedTable=', selectedTable);
+        console.log('Polling skipped: section=', state.currentSection, 'selectedTable=', state.selectedTable);
       }
     }
 
+    /**
+     * Renders the order section (table selection)
+     */
     async function renderOrderSection() {
-      if (currentSection !== 'order' || selectedTable) {
-        console.log('Skipping renderOrderSection: section=', currentSection, 'selectedTable=', selectedTable);
+      if (state.currentSection !== 'order' || state.selectedTable) {
+        console.log('Skipping renderOrderSection: section=', state.currentSection, 'selectedTable=', state.selectedTable);
         return;
       }
-      isFetching = true;
+      state.isFetching = true;
       showLoading(true);
       let orders = [];
       try {
-        const response = await fetch(`${DATABASE_URL}orders.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const response = await fetchWithRetry(`${DATABASE_URL}orders.json`);
         const data = await response.json();
         orders = data ? Object.entries(data)
           .map(([id, order]) => ({ id, ...order }))
@@ -387,23 +462,28 @@
         updateOrdersDOM(orders, 'order', 'order-item');
       } catch (error) {
         console.error('Failed to fetch orders:', error);
-        alert('Error loading orders. Check Firebase rules, endpoint, or network.');
+        alert(`Error loading orders: ${error.message}. Check Firebase rules, endpoint, or network.`);
       }
       showLoading(false);
-      isFetching = false;
+      state.isFetching = false;
       processQueue();
     }
 
+    /**
+     * Updates the DOM with orders
+     * @param {Array} orders - List of orders
+     * @param {string} section - Section name
+     * @param {string} className - CSS class for order elements
+     */
     function updateOrdersDOM(orders, section, className) {
-      const app = document.getElementById('app');
-      if (!app) return;
+      if (!domCache.app) return;
 
       const newState = JSON.stringify(orders.map(o => ({ id: o.id, status: o.status, timestamp: o.timestamp })));
-      if (newState === lastOrdersState[section]) {
+      if (newState === state.lastOrdersState[section]) {
         console.log(`No changes in ${section} orders, skipping DOM update`);
         return;
       }
-      lastOrdersState[section] = newState;
+      state.lastOrdersState[section] = newState;
 
       const currentOrderEls = Array.from(document.getElementsByClassName(className));
       const currentOrderIds = currentOrderEls.map(el => el.id.replace(`${section}-`, ''));
@@ -425,10 +505,9 @@
         html += `
           <h3>Place Order</h3>
           <div class="table-grid">
-            ${Array.from({ length: tables }, (_, i) => `
+            ${Array.from({ length: state.tables }, (_, i) => `
               <div>
                 <button class="btn-blue" onclick="selectTable('Table ${i + 1}')">Table ${i + 1}</button>
-                ${takeaway ? `<label><input type="checkbox" onchange="toggleTakeaway('Table ${i + 1}', this.checked)"> Takeaway</label>` : ''}
               </div>
             `).join('')}
           </div>
@@ -457,119 +536,127 @@
         ordersContainer.innerHTML += orderHtml;
       });
 
-      app.innerHTML = html;
-      app.appendChild(ordersContainer);
+      domCache.app.innerHTML = html;
+      domCache.app.appendChild(ordersContainer);
       showLoading(false);
     }
 
-    let tableTakeawayStates = {};
-
-    function toggleTakeaway(table, isTakeaway) {
-      tableTakeawayStates[table] = isTakeaway;
-    }
-
+    /**
+     * Selects a table and resets state if null
+     * @param {string|null} table - Table name or null to go back
+     */
     function selectTable(table) {
       queueAction(() => {
-        selectedTable = table;
-        selectedOrderId = null;
-        currentOrder = {};
-        currentPage = 1;
-        console.log('Table selected:', selectedTable, 'Takeaway:', tableTakeawayStates[selectedTable] || false);
+        console.log('selectTable called with:', table);
+        state.selectedTable = table;
+        state.selectedOrderId = null;
+        state.currentOrder = {};
+        state.currentPage = 1;
+        if (!table) {
+          state.tableTakeawayStates = {};
+        }
         render();
       }, 'selectTable');
     }
 
+    /**
+     * Edits an existing order
+     * @param {string} orderId - Order ID
+     * @param {string} table - Table name
+     */
     async function editOrder(orderId, table) {
       queueAction(async () => {
         showLoading(true);
         try {
-          const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`);
-          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          const response = await fetchWithRetry(`${DATABASE_URL}orders/${orderId}.json`);
           const order = await response.json();
           if (!order) throw new Error('Order not found');
-          selectedTable = table;
-          selectedOrderId = orderId;
-          currentOrder = {};
+          state.selectedTable = table;
+          state.selectedOrderId = orderId;
+          state.currentOrder = {};
           order.items.forEach(item => {
-            const key = `${item.id}_${item.isTakeaway ? 'takeaway' : 'dinein'}`;
-            currentOrder[key] = { quantity: item.quantity, isTakeaway: item.isTakeaway };
+            const key = `${item.id}`;
+            state.currentOrder[key] = { quantity: item.quantity, isTakeaway: item.isTakeaway };
           });
-          tableTakeawayStates[selectedTable] = order.items.some(item => item.isTakeaway);
-          console.log('Editing order:', orderId, currentOrder);
+          console.log('Editing order:', orderId, state.currentOrder);
           render();
         } catch (error) {
           console.error('Failed to load order for editing:', error);
-          alert('Error loading order. Check Firebase rules, endpoint, or network.');
+          alert(`Error loading order: ${error.message}. Check Firebase rules, endpoint, or network.`);
         }
         showLoading(false);
       }, 'editOrder');
     }
 
+    /**
+     * Renders the menu section with per-item takeaway checkboxes
+     */
     function renderMenuSection() {
-      const app = document.getElementById('app');
-      if (!app) return;
-      const isTakeaway = tableTakeawayStates[selectedTable] || false;
-      const total = Object.entries(currentOrder).reduce((sum, [key, { quantity }]) => {
-        const itemId = parseInt(key.split('_')[0]);
+      if (!domCache.app) return;
+
+      const total = Object.entries(state.currentOrder).reduce((sum, [key, { quantity }]) => {
+        const itemId = parseInt(key);
         const item = menu.find(m => m.id === itemId);
         return sum + (item ? item.price * quantity : 0);
       }, 0);
 
-      // Calculate pagination
-      const totalItems = menu.length;
-      const totalPages = Math.ceil(totalItems / itemsPerPage);
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const paginatedItems = menu.slice(startIndex, endIndex);
+      // Pagination by categories
+      const totalPages = Math.ceil(categories.length / state.itemsPerPage);
+      const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+      const endIndex = startIndex + state.itemsPerPage;
+      const paginatedCategories = categories.slice(startIndex, endIndex);
 
       let html = `
-        <h2>${selectedTable} ${selectedOrderId ? 'Edit Order' : 'Order'}</h2>
-        <button class="btn-gray" onclick="selectTable(null)">Back</button>
+        <div class="sticky-header">
+          <h2>${state.selectedTable} ${state.selectedOrderId ? 'Edit Order' : 'Order'}</h2>
+          <button class="btn-gray" onclick="selectTable(null)">Back</button>
+          <p class="total-sum">Total: ₹${total}</p>
+          <select onchange="jumpToCategory(this.value)">
+            <option value="">Jump to Category</option>
+            ${categories.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+          </select>
+        </div>
       `;
 
-      // Group items by category for paginated items
-      const categoryGroups = {};
-      paginatedItems.forEach(item => {
-        const category = item.category || 'Uncategorized';
-        if (!categoryGroups[category]) {
-          categoryGroups[category] = [];
-        }
-        categoryGroups[category].push(item);
-      });
-
       // Render favorites
-      const favoriteItems = paginatedItems.filter(item => item.isFavorite);
+      const favoriteItems = menu.filter(item => item.isFavorite);
       if (favoriteItems.length > 0) {
         html += `<div class="category-group"><h3>Favorites</h3>`;
         favoriteItems.forEach(item => {
-          const key = `${item.id}_${isTakeaway ? 'takeaway' : 'dinein'}`;
-          const order = currentOrder[key] || { quantity: 0, isTakeaway };
+          const key = `${item.id}`;
+          const order = state.currentOrder[key] || { quantity: 0, isTakeaway: false };
           html += `
             <div class="order-item">
-              <span>${item.name} (₹${item.price}) - ${isTakeaway ? 'Takeaway' : 'Dine-in'}</span>
-              <button class="btn-red" onclick="updateOrder(${item.id}, -1, ${isTakeaway})">-</button>
-              <span>${order.quantity}</span>
-              <button class="btn-green" onclick="updateOrder(${item.id}, 1, ${isTakeaway})">+</button>
+              <span>${item.name} (₹${item.price})</span>
+              <div class="item-controls">
+                <button class="btn-red" onclick="updateOrder(${item.id}, -1, ${order.isTakeaway})">-</button>
+                <span>${order.quantity}</span>
+                <button class="btn-green" onclick="updateOrder(${item.id}, 1, ${order.isTakeaway})">+</button>
+                <label><input type="checkbox" ${order.isTakeaway ? 'checked' : ''} onchange="updateOrder(${item.id}, 0, this.checked)"> Takeaway</label>
+              </div>
             </div>
           `;
         });
         html += `</div>`;
       }
 
-      // Render all categories
-      categories.concat(['Uncategorized']).forEach(category => {
-        const categoryItems = categoryGroups[category] || [];
+      // Render paginated categories
+      paginatedCategories.forEach(category => {
+        const categoryItems = menu.filter(item => item.category === category);
         if (categoryItems.length > 0) {
           html += `<div class="category-group"><h3>${category}</h3>`;
           categoryItems.forEach(item => {
-            const key = `${item.id}_${isTakeaway ? 'takeaway' : 'dinein'}`;
-            const order = currentOrder[key] || { quantity: 0, isTakeaway };
+            const key = `${item.id}`;
+            const order = state.currentOrder[key] || { quantity: 0, isTakeaway: false };
             html += `
               <div class="order-item">
-                <span>${item.name} (₹${item.price}) - ${isTakeaway ? 'Takeaway' : 'Dine-in'}</span>
-                <button class="btn-red" onclick="updateOrder(${item.id}, -1, ${isTakeaway})">-</button>
-                <span>${order.quantity}</span>
-                <button class="btn-green" onclick="updateOrder(${item.id}, 1, ${isTakeaway})">+</button>
+                <span>${item.name} (₹${item.price})</span>
+                <div class="item-controls">
+                  <button class="btn-red" onclick="updateOrder(${item.id}, -1, ${order.isTakeaway})">-</button>
+                  <span>${order.quantity}</span>
+                  <button class="btn-green" onclick="updateOrder(${item.id}, 1, ${order.isTakeaway})">+</button>
+                  <label><input type="checkbox" ${order.isTakeaway ? 'checked' : ''} onchange="updateOrder(${item.id}, 0, this.checked)"> Takeaway</label>
+                </div>
               </div>
             `;
           });
@@ -577,50 +664,78 @@
         }
       });
 
-      html += `<p class="total-sum">Total: ₹${total}</p>`;
-      html += `<button class="btn-blue" onclick="confirmOrder()">Confirm ${selectedOrderId ? 'Updated ' : ''}Order</button>`;
+      html += `<button class="btn-blue" onclick="confirmOrder()">Confirm ${state.selectedOrderId ? 'Updated ' : ''}Order</button>`;
 
       // Pagination controls
       html += `
         <div class="pagination">
-          <button class="btn-blue" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">Previous</button>
-          <span>Page ${currentPage} of ${totalPages}</span>
-          <button class="btn-blue" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next</button>
+          <button class="btn-blue" ${state.currentPage === 1 ? 'disabled' : ''} onclick="changePage(${state.currentPage - 1})">Previous</button>
+          <span>Page ${state.currentPage} of ${totalPages}</span>
+          <button class="btn-blue" ${state.currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${state.currentPage + 1})">Next</button>
         </div>
       `;
 
-      app.innerHTML = html;
-      console.log('Menu section rendered for table:', selectedTable, 'Takeaway:', isTakeaway, 'Total:', total, 'Page:', currentPage);
+      domCache.app.innerHTML = html;
+      console.log('Menu section rendered: Table=', state.selectedTable, 'Total=', total, 'Page=', state.currentPage, 'Categories=', paginatedCategories);
     }
 
+    /**
+     * Jumps to a category by adjusting the page
+     * @param {string} category - Category to jump to
+     */
+    function jumpToCategory(category) {
+      if (!category) return;
+      const index = categories.indexOf(category);
+      if (index >= 0) {
+        state.currentPage = Math.floor(index / state.itemsPerPage) + 1;
+        render();
+      }
+    }
+
+    /**
+     * Changes the current page
+     * @param {number} page - Page number
+     */
     function changePage(page) {
-      currentPage = Math.max(1, Math.min(page, Math.ceil(menu.length / itemsPerPage)));
+      state.currentPage = Math.max(1, Math.min(page, Math.ceil(categories.length / state.itemsPerPage)));
       render();
     }
 
+    /**
+     * Updates an order item
+     * @param {number} itemId - Item ID
+     * @param {number} delta - Quantity change
+     * @param {boolean} isTakeaway - Takeaway status
+     */
     function updateOrder(itemId, delta, isTakeaway) {
       queueAction(() => {
-        const key = `${itemId}_${isTakeaway ? 'takeaway' : 'dinein'}`;
-        if (!currentOrder[key]) {
-          currentOrder[key] = { quantity: 0, isTakeaway };
+        const key = `${itemId}`;
+        if (!state.currentOrder[key]) {
+          state.currentOrder[key] = { quantity: 0, isTakeaway: false };
         }
-        currentOrder[key].quantity = (currentOrder[key].quantity || 0) + delta;
-        if (currentOrder[key].quantity <= 0) {
-          delete currentOrder[key];
+        if (delta !== 0) {
+          state.currentOrder[key].quantity = (state.currentOrder[key].quantity || 0) + delta;
+          if (state.currentOrder[key].quantity <= 0) {
+            delete state.currentOrder[key];
+          }
+        } else {
+          state.currentOrder[key].isTakeaway = isTakeaway;
         }
         render();
       }, 'updateOrder');
     }
 
+    /**
+     * Confirms the current order
+     */
     async function confirmOrder() {
       queueAction(async () => {
-        const button = document.querySelector('button[onclick="confirmOrder()"]');
+        const button = domCache.app.querySelector('button[onclick="confirmOrder()"]');
         button.disabled = true;
         button.classList.add('btn-disabled');
         button.textContent = 'Processing...';
-        const isTakeaway = tableTakeawayStates[selectedTable] || false;
-        const items = Object.entries(currentOrder).map(([key, { quantity, isTakeaway }]) => {
-          const itemId = parseInt(key.split('_')[0]);
+        const items = Object.entries(state.currentOrder).map(([key, { quantity, isTakeaway }]) => {
+          const itemId = parseInt(key);
           const item = menu.find(m => m.id === itemId);
           return { ...item, quantity, isTakeaway };
         }).filter(item => item.quantity > 0);
@@ -628,56 +743,55 @@
           alert('Please add items to the order.');
           button.disabled = false;
           button.classList.remove('btn-disabled');
-          button.textContent = `Confirm ${selectedOrderId ? 'Updated ' : ''}Order`;
+          button.textContent = `Confirm ${state.selectedOrderId ? 'Updated ' : ''}Order`;
           return;
         }
 
         showLoading(true);
         try {
-          const url = selectedOrderId ? `${DATABASE_URL}orders/${selectedOrderId}.json` : `${DATABASE_URL}orders.json`;
-          const method = selectedOrderId ? 'PUT' : 'POST';
+          const url = state.selectedOrderId ? `${DATABASE_URL}orders/${state.selectedOrderId}.json` : `${DATABASE_URL}orders.json`;
+          const method = state.selectedOrderId ? 'PUT' : 'POST';
           const body = {
-            table: selectedTable,
+            table: state.selectedTable,
             items,
             status: 'pending',
-            timestamp: Date.now(),
-            isTakeaway: isTakeaway
+            timestamp: Date.now()
           };
-          const response = await fetch(url, {
+          const response = await fetchWithRetry(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
           });
-          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          console.log(`${selectedOrderId ? 'Order updated' : 'Order confirmed'}:`, { table: selectedTable, items, isTakeaway });
-          currentOrder = {};
-          selectedTable = null;
-          selectedOrderId = null;
-          tableTakeawayStates[selectedTable] = false;
+          console.log(`${state.selectedOrderId ? 'Order updated' : 'Order confirmed'}:`, { table: state.selectedTable, items });
+          state.currentOrder = {};
+          state.selectedTable = null;
+          state.selectedOrderId = null;
           render();
           startPolling();
         } catch (error) {
-          console.error(`Failed to ${selectedOrderId ? 'update' : 'confirm'} order:`, error);
-          alert(`Error ${selectedOrderId ? 'updating' : 'confirming'} order. Check Firebase rules, endpoint, or network.`);
+          console.error(`Failed to ${state.selectedOrderId ? 'update' : 'confirm'} order:`, error);
+          alert(`Error ${state.selectedOrderId ? 'updating' : 'confirming'} order: ${error.message}. Check Firebase rules, endpoint, or network.`);
         }
         button.disabled = false;
         button.classList.remove('btn-disabled');
-        button.textContent = `Confirm ${selectedOrderId ? 'Updated ' : ''}Order`;
+        button.textContent = `Confirm ${state.selectedOrderId ? 'Updated ' : ''}Order`;
         showLoading(false);
       }, 'confirmOrder');
     }
 
+    /**
+     * Renders the kitchen section
+     */
     async function renderKitchenSection() {
-      if (currentSection !== 'kitchen') {
+      if (state.currentSection !== 'kitchen') {
         console.log('Skipping renderKitchenSection: not in kitchen section');
         return;
       }
-      isFetching = true;
+      state.isFetching = true;
       showLoading(true);
       let orders = [];
       try {
-        const response = await fetch(`${DATABASE_URL}orders.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const response = await fetchWithRetry(`${DATABASE_URL}orders.json`);
         const data = await response.json();
         orders = data ? Object.entries(data)
           .map(([id, order]) => ({ id, ...order }))
@@ -687,24 +801,27 @@
         updateKitchenOrdersDOM(orders);
       } catch (error) {
         console.error('Failed to fetch orders:', error);
-        alert('Error loading kitchen orders. Check Firebase rules, endpoint, or network.');
+        alert(`Error loading kitchen orders: ${error.message}. Check Firebase rules, endpoint, or network.`);
       }
       showLoading(false);
-      isFetching = false;
+      state.isFetching = false;
       processQueue();
     }
 
+    /**
+     * Updates the DOM with kitchen orders
+     * @param {Array} orders - List of orders
+     */
     function updateKitchenOrdersDOM(orders) {
-      const app = document.getElementById('app');
-      if (!app) return;
+      if (!domCache.app) return;
 
       const newState = JSON.stringify(orders.map(o => ({ id: o.id, status: o.status, timestamp: o.timestamp })));
-      if (newState === lastOrdersState.kitchen) {
+      if (newState === state.lastOrdersState.kitchen) {
         console.log('No changes in kitchen orders, updating timestamps only');
         updateTimestamps();
         return;
       }
-      lastOrdersState.kitchen = newState;
+      state.lastOrdersState.kitchen = newState;
 
       const currentOrderEls = Array.from(document.getElementsByClassName('kitchen-order'));
       const currentOrderIds = currentOrderEls.map(el => el.id.replace('kitchen-order-', ''));
@@ -742,15 +859,18 @@
           </div>
         `;
       });
-      app.innerHTML = html;
-      app.appendChild(ordersContainer);
+      domCache.app.innerHTML = html;
+      domCache.app.appendChild(ordersContainer);
     }
 
+    /**
+     * Updates timestamps for kitchen orders
+     */
     function updateTimestamps() {
       const orders = document.getElementsByClassName('kitchen-order');
       Array.from(orders).forEach(orderEl => {
         const orderId = orderEl.id.replace('kitchen-order-', '');
-        const order = lastOrdersState.kitchen ? JSON.parse(lastOrdersState.kitchen).find(o => o.id === orderId) : null;
+        const order = state.lastOrdersState.kitchen ? JSON.parse(state.lastOrdersState.kitchen).find(o => o.id === orderId) : null;
         if (order) {
           const timestamp = order.timestamp;
           const receivedTime = new Date(timestamp).toLocaleTimeString();
@@ -763,6 +883,11 @@
       });
     }
 
+    /**
+     * Marks an order as ready
+     * @param {string} orderId - Order ID
+     * @param {HTMLElement} button - Button element
+     */
     async function markReady(orderId, button) {
       queueAction(async () => {
         button.disabled = true;
@@ -771,12 +896,11 @@
         showLoading(true);
         const startTime = Date.now();
         try {
-          const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
+          const response = await fetchWithRetry(`${DATABASE_URL}orders/${orderId}.json`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'ready' })
           });
-          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           console.log(`Order marked ready: ${orderId}, took ${Date.now() - startTime}ms`);
           const orderEl = document.getElementById(`kitchen-order-${orderId}`);
           if (orderEl) {
@@ -785,7 +909,7 @@
           }
         } catch (error) {
           console.error('Failed to mark ready:', error);
-          alert('Error marking order as ready. Check Firebase rules, endpoint, or network.');
+          alert(`Error marking order as ready: ${error.message}. Check Firebase rules, endpoint, or network.`);
           button.disabled = false;
           button.classList.remove('btn-disabled');
           button.textContent = 'Mark Ready';
@@ -795,12 +919,14 @@
       }, 'markReady');
     }
 
+    /**
+     * Renders the admin section
+     */
     async function renderAdminSection() {
       showLoading(true);
       let orders = [];
       try {
-        const response = await fetch(`${DATABASE_URL}orders.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const response = await fetchWithRetry(`${DATABASE_URL}orders.json`);
         const data = await response.json();
         orders = data ? Object.entries(data)
           .map(([id, order]) => ({ id, ...order }))
@@ -808,21 +934,20 @@
         console.log('Admin orders fetched:', orders);
       } catch (error) {
         console.error('Failed to fetch orders:', error);
-        alert('Error loading order history. Check Firebase rules, endpoint, or network.');
+        alert(`Error loading order history: ${error.message}. Check Firebase rules, endpoint, or network.`);
       }
 
-      const app = document.getElementById('app');
-      if (!app) return;
+      if (!domCache.app) return;
       let html = `
         <h2>Admin Section</h2>
         <button class="btn-gray" onclick="navigate('home')">Back</button>
         <h3>Configuration</h3>
         <div>
           <label>Tables:</label>
-          <input type="number" id="tables" value="${tables}" onchange="updateTables(this.value)">
+          <input type="number" id="tables" value="${state.tables}" onchange="updateTables(this.value)">
         </div>
         <div>
-          <label><input type="checkbox" id="takeaway" ${takeaway ? 'checked' : ''} onchange="updateTakeaway(this.checked)"> Takeaway</label>
+          <label><input type="checkbox" id="takeaway" ${state.takeaway ? 'checked' : ''} onchange="updateTakeaway(this.checked)"> Takeaway</label>
         </div>
         <div>
           <h4>Categories</h4>
@@ -859,7 +984,7 @@
           </div>
         `;
       });
-      app.innerHTML = html;
+      domCache.app.innerHTML = html;
 
       const menuItems = document.getElementById('menu-items');
       if (menuItems) {
@@ -887,6 +1012,9 @@
       showLoading(false);
     }
 
+    /**
+     * Adds a new category
+     */
     function addCategory() {
       const input = document.getElementById('new-category');
       const newCategory = input.value.trim();
@@ -897,44 +1025,74 @@
       }
     }
 
+    /**
+     * Updates a category name
+     * @param {string} oldName - Old category name
+     * @param {string} newName - New category name
+     */
     function updateCategory(oldName, newName) {
       if (newName && !categories.includes(newName)) {
-        categories = categories.map(cat => cat === oldName ? newName : cat);
-        menu = menu.map(item => item.category === oldName ? { ...item, category: newName } : item);
+        categories[categories.indexOf(oldName)] = newName;
+        menu.forEach(item => {
+          if (item.category === oldName) item.category = newName;
+        });
         render();
       }
     }
 
+    /**
+     * Deletes a category
+     * @param {string} category - Category to delete
+     */
     function deleteCategory(category) {
       if (menu.some(item => item.category === category)) {
         alert('Cannot delete category with menu items. Reassign or delete items first.');
         return;
       }
-      categories = categories.filter(cat => cat !== category);
+      categories.splice(categories.indexOf(category), 1);
       render();
     }
 
+    /**
+     * Adds a new menu item
+     */
     function addMenuItem() {
       menu.push({ id: menu.length + 1, name: 'New Item', price: 0, category: '', isFavorite: false });
       render();
     }
 
+    /**
+     * Deletes a menu item
+     * @param {number} id - Item ID
+     */
     function deleteMenuItem(id) {
-      menu = menu.filter(item => item.id !== id);
+      const index = menu.findIndex(item => item.id === id);
+      if (index !== -1) menu.splice(index, 1);
       render();
     }
 
+    /**
+     * Updates a menu item
+     * @param {number} id - Item ID
+     * @param {string} field - Field to update
+     * @param {any} value - New value
+     */
     function updateMenuItem(id, field, value) {
-      menu = menu.map(item => item.id === id ? { ...item, [field]: field === 'price' ? parseFloat(value) || 0 : field === 'isFavorite' ? value : value } : item);
-      render();
+      const item = menu.find(item => item.id === id);
+      if (item) {
+        item[field] = field === 'price' ? parseFloat(value) || 0 : field === 'isFavorite' ? value : value;
+        render();
+      }
     }
 
+    /**
+     * Renders the history section
+     */
     async function renderHistorySection() {
       showLoading(true);
       let orders = [];
       try {
-        const response = await fetch(`${DATABASE_URL}orders.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const response = await fetchWithRetry(`${DATABASE_URL}orders.json`);
         const data = await response.json();
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -950,11 +1108,10 @@
         console.log('Today\'s orders fetched:', orders.length);
       } catch (error) {
         console.error('Failed to fetch orders:', error);
-        alert('Error loading today\'s history. Check Firebase rules, endpoint, or network.');
+        alert(`Error loading today's history: ${error.message}. Check Firebase rules, endpoint, or network.`);
       }
 
-      const app = document.getElementById('app');
-      if (!app) return;
+      if (!domCache.app) return;
       let html = `
         <h2>Today's Order History</h2>
         <button class="btn-gray" onclick="navigate('home')">Back</button>
@@ -976,44 +1133,49 @@
           </div>
         `;
       });
-      app.innerHTML = html;
+      domCache.app.innerHTML = html;
       showLoading(false);
     }
 
+    /**
+     * Deletes an order
+     * @param {string} orderId - Order ID
+     */
     async function deleteOrder(orderId) {
       console.log('Attempting to delete order:', orderId);
       if (window.confirm('Are you sure you want to delete this order?') &&
           window.confirm('This action cannot be undone. Confirm deletion?')) {
         showLoading(true);
         try {
-          const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
+          const response = await fetchWithRetry(`${DATABASE_URL}orders/${orderId}.json`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' }
           });
-          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           console.log(`Order deleted successfully: ${orderId}`);
           const orderEl = document.getElementById(`history-${orderId}`);
           if (orderEl) {
             orderEl.style.opacity = '0';
             setTimeout(() => orderEl.remove(), 300);
           }
-          renderHistorySection(); // Refresh history
+          renderHistorySection();
         } catch (error) {
           console.error('Failed to delete order:', orderId, error);
-          alert(`Error deleting order ${orderId}. Check Firebase rules, endpoint, or network: ${error.message}`);
+          alert(`Error deleting order ${orderId}: ${error.message}. Check Firebase rules, endpoint, or network.`);
         }
         showLoading(false);
       }
     }
 
+    /**
+     * Deletes all orders for today
+     */
     async function deleteAllOrders() {
       console.log('Attempting to delete all today\'s orders');
       if (window.confirm('Are you sure you want to delete all today\'s orders?') &&
           window.confirm('This action cannot be undone. Confirm deletion?')) {
         showLoading(true);
         try {
-          const response = await fetch(`${DATABASE_URL}orders.json`);
-          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          const response = await fetchWithRetry(`${DATABASE_URL}orders.json`);
           const data = await response.json();
           const today = new Date();
           today.setHours(0, 0, 0, 0);
@@ -1028,7 +1190,7 @@
 
           console.log('Orders to delete:', ordersToDelete);
           const deletePromises = ordersToDelete.map(orderId =>
-            fetch(`${DATABASE_URL}orders/${orderId}.json`, {
+            fetchWithRetry(`${DATABASE_URL}orders/${orderId}.json`, {
               method: 'DELETE',
               headers: { 'Content-Type': 'application/json' }
             }).then(res => ({ id: orderId, ok: res.ok, status: res.status, statusText: res.statusText }))
@@ -1042,25 +1204,38 @@
             }
           });
           console.log(`Deleted ${results.filter(r => r.ok).length} orders`);
-          renderHistorySection(); // Refresh history
+          renderHistorySection();
         } catch (error) {
           console.error('Failed to delete all orders:', error);
-          alert(`Error deleting orders. Check Firebase rules, endpoint, or network: ${error.message}`);
+          alert(`Error deleting orders: ${error.message}. Check Firebase rules, endpoint, or network.`);
         }
         showLoading(false);
       }
     }
 
+    /**
+     * Updates the number of tables
+     * @param {string} value - New number of tables
+     */
     function updateTables(value) {
-      tables = parseInt(value) || 10;
+      state.tables = parseInt(value) || 10;
       render();
     }
 
+    /**
+     * Updates the takeaway setting
+     * @param {boolean} checked - Whether takeaway is enabled
+     */
     function updateTakeaway(checked) {
-      takeaway = checked;
+      state.takeaway = checked;
       render();
     }
 
+    /**
+     * Marks an order as paid
+     * @param {string} orderId - Order ID
+     * @param {HTMLElement} button - Button element
+     */
     const debouncedMarkPaid = debounce(async (orderId, button) => {
       button.disabled = true;
       button.classList.add('btn-disabled');
@@ -1068,12 +1243,11 @@
       showLoading(true);
       const startTime = Date.now();
       try {
-        const response = await fetch(`${DATABASE_URL}orders/${orderId}.json`, {
+        const response = await fetchWithRetry(`${DATABASE_URL}orders/${orderId}.json`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'paid', paidTimestamp: Date.now() })
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         console.log(`Order marked paid: ${orderId}, took ${Date.now() - startTime}ms`);
         const orderEl = document.getElementById(`order-${orderId}`);
         if (orderEl) {
@@ -1082,7 +1256,7 @@
         }
       } catch (error) {
         console.error('Failed to mark paid:', error);
-        alert('Error marking order as paid. Check Firebase rules, endpoint, or network.');
+        alert(`Error marking order as paid: ${error.message}. Check Firebase rules, endpoint, or network.`);
         button.disabled = false;
         button.classList.remove('btn-disabled');
         button.textContent = 'Mark Paid';
@@ -1091,16 +1265,18 @@
       setTimeout(render, 500);
     }, 300);
 
-    async function markPaid(orderId, button) {
+    function markPaid(orderId, button) {
       queueAction(() => debouncedMarkPaid(orderId, button), 'markPaid');
     }
 
+    /**
+     * Exports order history as CSV
+     */
     async function exportOrderHistory() {
       showLoading(true);
       let orders = [];
       try {
-        const response = await fetch(`${DATABASE_URL}orders.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const response = await fetchWithRetry(`${DATABASE_URL}orders.json`);
         const data = await response.json();
         orders = data ? Object.entries(data)
           .map(([id, order]) => ({ id, ...order }))
@@ -1108,7 +1284,7 @@
         console.log('Orders exported:', orders);
       } catch (error) {
         console.error('Failed to fetch orders for export:', error);
-        alert('Error exporting order history. Check Firebase rules, endpoint, or network.');
+        alert(`Error exporting order history: ${error.message}. Check Firebase rules, endpoint, or network.`);
       }
 
       let csvContent = 'Order ID,Table,Items,Total (INR),Paid Timestamp\n';
